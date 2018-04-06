@@ -126,6 +126,7 @@ contract TokenSwap is Owned{
   // ------------------------------------------------------------------------
   // Users can trade old MyBit tokens for new MyBit tokens here 
   // Must approve this contract to transfer in tokens
+  // TODO: Re-entrancy?
   // ------------------------------------------------------------------------
   function swap(uint256 _amount) 
   public 

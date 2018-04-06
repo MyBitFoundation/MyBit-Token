@@ -115,10 +115,60 @@ contract('TokenSale', async (accounts) => {
     assert.equal(await tokenInstance.balanceOf(ownerOne) / 10**10, (ownerOldTokenBalance * scalingFactor), "New token balance does not match expected");
   });
 
-  const acc = 1;
 
-  it("Swap old tokens in many transactions", async () => { 
+  it("transfer new tokens to self", async () => { 
+    let ownerTokenBalance = await tokenInstance.balanceOf(ownerOne); 
+    await tokenInstance.transfer(ownerOne, ownerTokenBalance);    // transfer to self
+    assert.equal(await tokenInstance.balanceOf(ownerOne) - ownerTokenBalance, 0);
+  }); 
 
-
+  it("transfer 0 new tokens", async () => { 
+    let ownerTokenBalance = await tokenInstance.balanceOf(ownerOne); 
+    await tokenInstance.transfer(ownerOne, 0);    // transfer to self
+    await tokenInstance.transfer(myBitFoundation, 0);    // transfer to self
+    assert.equal(await tokenInstance.balanceOf(ownerOne) - ownerTokenBalance, 0);
   });
+
+  // // TODO: catch EVM error and continue
+  // it("transfer more tokens than ownerOne has", async () => { 
+  //   let ownerTokenBalance = await tokenInstance.balanceOf(ownerOne); 
+  //   await tokenInstance.transfer(myBitFoundation, (ownerTokenBalance * 2));    
+  //   assert.equal(await tokenInstance.balanceOf(ownerOne), ownerTokenBalance);
+  // });
+
+  // // TODO: catch EVM error and continue
+  // it("transfer max tokens", async () => { 
+  //   let ownerTokenBalance = await tokenInstance.balanceOf(ownerOne); 
+  //   await tokenInstance.transfer(myBitFoundation, (2**256 + 1));    
+  //   assert.equal(await tokenInstance.balanceOf(ownerOne) - ownerTokenBalance, 0);
+  // });
+
+  it("transfer all tokens and receive them back", async () => { 
+    let ownerTokenBalance = await tokenInstance.balanceOf(ownerOne); 
+    let myBitFoundationBalance = await tokenInstance.balanceOf(myBitFoundation);
+    let balanceTogether = (ownerTokenBalance / tenDecimals) + (myBitFoundationBalance / tenDecimals);    // Scaled down due to large numbers
+    await tokenInstance.transfer(myBitFoundation, ownerTokenBalance);   
+    console.log("myBitFoundationBalance");
+    console.log(myBitFoundationBalance);
+    console.log("ownerTokenBalance");
+    console.log(ownerTokenBalance);
+    console.log("after transfer mybf");
+    console.log(await tokenInstance.balanceOf(myBitFoundation));
+    let newFoundationBalance = await tokenInstance.balanceOf(myBitFoundation); 
+    assert.equal(balanceTogether - (newFoundationBalance / tenDecimals), 0);
+    await tokenInstance.transfer(ownerOne, ownerTokenBalance, {from: myBitFoundation});  
+    assert.equal(myBitFoundationBalance - await tokenInstance.balanceOf(myBitFoundation), 0); 
+    assert.equal(await tokenInstance.balanceOf(ownerOne) - ownerTokenBalance, 0);
+  });
+
+  // TODO: test transferFrom
+  // TODO: test approveandcall()
+  // TODO: test sending tokens to old address
+  // TODO: 
+
+  // it("Swap old tokens in many transactions", async () => { 
+
+
+  // });
+
 });

@@ -10,21 +10,21 @@ import './ERC20Interface.sol';
 // Receive approval and then execute function
 // ----------------------------------------------------------------------------
 contract ApproveAndCallFallBack {
-    function receiveApproval(address from, uint256 tokens, address token, bytes data) public;
+    function receiveApproval(address from, uint tokens, address token, bytes data) public;
 }
 
 
 // TODO: add emit events + inherit ERC20Interface
 // Standard ERC20 Token Contract With TokenBurning
-contract ERC20 {
-    using SafeMath for uint256; 
+contract ERC20 is ERC20Interface{
+    using SafeMath for uint; 
 
     // ------------------------------------------------------------------------
     /// Token supply, balances and allowance
     // ------------------------------------------------------------------------
-    uint256 public totalSupply;
-    mapping (address => uint256) public balances;
-    mapping (address => mapping (address => uint256)) public allowed;
+    uint internal supply;
+    mapping (address => uint) internal balances;
+    mapping (address => mapping (address => uint)) public allowed;
 
     // ------------------------------------------------------------------------
     // Token Information
@@ -37,10 +37,10 @@ contract ERC20 {
     // ------------------------------------------------------------------------
     // Constructor
     // ------------------------------------------------------------------------
-    function ERC20(uint256 _initialAmount, string _tokenName, uint8 _decimalUnits, string _tokenSymbol) 
+    function ERC20(uint _initialAmount, string _tokenName, uint8 _decimalUnits, string _tokenSymbol) 
     public {
         balances[msg.sender] = _initialAmount;               // Give the creator all initial tokens
-        totalSupply = _initialAmount;                        // Update total supply
+        supply = _initialAmount;                        // Update total supply
         name = _tokenName;                                   // Set the name for display purposes
         decimals = _decimalUnits;                            // Amount of decimals for display purposes
         symbol = _tokenSymbol;                               // Set the symbol for display purposes
@@ -105,13 +105,13 @@ contract ERC20 {
     // ------------------------------------------------------------------------
     // User can burn tokens here
     // ------------------------------------------------------------------------   
-    function burn(uint256 _amount) 
+    function burn(uint _amount) 
     public 
     returns (bool success) {
         require(_amount <= balances[msg.sender]);    // TODO: superfluous with safemath
         address burner = msg.sender;
         balances[burner] = balances[burner].sub(_amount);
-        totalSupply = totalSupply.sub(_amount);
+        supply = supply.sub(_amount);
         LogBurn(msg.sender, _amount);
         Transfer(msg.sender, address(0), _amount);
         return true;
@@ -120,19 +120,28 @@ contract ERC20 {
     // ------------------------------------------------------------------------
     // An account approved to spend a users tokens can burn them here
     // ------------------------------------------------------------------------    
-    function burnFrom(address _from, uint256 _amount) 
+    function burnFrom(address _from, uint _amount) 
     public 
     returns (bool success) {
         require(balances[_from] >= _amount);                // TODO: superfluous
         require(_amount <= allowed[_from][msg.sender]);    // TODO: superfluous
         balances[_from] = balances[_from].sub(_amount);                         // Subtract from the targeted balance
         allowed[_from][msg.sender] = allowed[_from][msg.sender].sub(_amount);             // Subtract from the sender's allowance
-        totalSupply = totalSupply.sub(_amount);                              // Update totalSupply
+        supply = supply.sub(_amount);                              // Update supply
         LogBurn(_from, _amount);
         Transfer(_from, address(0), _amount);
         return true;
     }
 
+    // ------------------------------------------------------------------------
+    // Returns the number of tokens in circulation
+    // ------------------------------------------------------------------------
+    function totalSupply()
+    public 
+    view 
+    returns (uint totalSupply) { 
+        return supply; 
+    }
 
     // ------------------------------------------------------------------------
     // Returns the token balance of user
@@ -165,10 +174,8 @@ contract ERC20 {
     }
 
     // ------------------------------------------------------------------------
-    // Token Events
+    // Burn Events
     // ------------------------------------------------------------------------
-    event Transfer(address indexed from, address indexed to, uint256 tokens);
-    event Approval(address indexed tokenOwner, address indexed spender, uint256 tokens);
     event LogBurn(address indexed _burner, uint indexed _amountBurned); 
 }
 
