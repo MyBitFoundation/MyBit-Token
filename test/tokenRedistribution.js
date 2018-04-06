@@ -1,6 +1,7 @@
 const Token = artifacts.require("./ERC20.sol");
-const TokenRedistribution = artifacts.require("./TokenRedistribution.sol");
+const TokenSwap = artifacts.require("./TokenSwap.sol");
 const OldToken = artifacts.require("./CSToken.sol");
+
 
 contract('TokenSale', async (accounts) => {
   const ownerOne = web3.eth.accounts[0];
@@ -10,14 +11,13 @@ contract('TokenSale', async (accounts) => {
 
 
   let tokenInstance;
-  let trInstance;
+  let tokenSwapInstance;
   let oldTokenInstance;
-
+  let mathInstance;
 
 
    // Distribute old token 
-
-  const oldTokenSupply = 281207344012426;
+  const oldTokenSupply = 281207344012426;  
   const tokenDecimals = 1e8; 
   const oldTokenPerAccount = 1000 * tokenDecimals; 
 
@@ -43,34 +43,47 @@ contract('TokenSale', async (accounts) => {
 
  // -------------------Begin distribution of new token ------------------------------
 
+
  // Initialize token information
  const name = "MyBit";
  const symbol = "MYB"; 
- const decimals = 10**8;
+ const decimals = 10**18;
+ const tenDecimals = 10**10; 
+
+
 
  // Token numbers
- const tokenSupply = 178000000;
- const circulatingSupply = 10010981446842366;
- const foundationSupply = (tokenSupply * decimals) - circulatingSupply; 
- const scalingFactor = 35;   // 1 OldToken = 35.6 New Tokens
+ const tokenSupply = 18000000000000000;      // Scaled up by 10^8 to match old tokens 
+ const circulatingSupply = 10123464384447336;   // This is scaled up by 10^8 to match old tokens 10123464384447336
+ const foundationSupply = tokenSupply - circulatingSupply; 
+ const scalingFactor = 36;   // 1 OldToken = 35.6 New Tokens
 
-  it("deploy redistribution contract", async () => { 
-    trInstance = await TokenRedistribution.new(myBitFoundation, oldTokenInstance.address);    // Constructor deploys new token
-    tokenAddress = await trInstance.newToken();    
+  it("deploy swap contract", async () => { 
+    assert.equal(tokenSupply, (circulatingSupply + foundationSupply));   
+    tokenSwapInstance = await TokenSwap.new(myBitFoundation, oldTokenInstance.address);    // Constructor deploys new token
+    tokenAddress = await tokenSwapInstance.newToken();    
     tokenInstance = Token.at(tokenAddress);
     assert.equal(tokenAddress, tokenInstance.address);      // Make sure instance is working
 
     // Check distribution variables are correct
-    assert.equal(await trInstance.initialSupply(), (tokenSupply * decimals));
-    assert.equal(await trInstance.numDecimals(), 1e8);
-    assert.equal(await trInstance.scalingFactor(), scalingFactor * 10);  // Scaling factor is moved up 10, due to lack of decimals in solidity
-    assert.equal(await trInstance.ready(), false);    // Verify that distribution hasn't been initialized
+    assert.equal(await tokenSwapInstance.totalSupply(), tokenSupply * tenDecimals);
+    assert.equal(await tokenSwapInstance.tenDecimalPlaces(), tenDecimals);
+    assert.equal(await tokenSwapInstance.scalingFactor(), scalingFactor);  // Scaling factor is moved up 10, due to lack of decimals in solidity
+    console.log("Foundation supply");
+    console.log(await tokenSwapInstance.foundationSupply());
+    console.log("circulatingSupply");
+    console.log(await tokenSwapInstance.circulatingSupply());
+    console.log("Total supply");
+    console.log(await tokenSwapInstance.totalSupply()); 
+    assert.equal(await tokenSwapInstance.circulatingSupply(), circulatingSupply * tenDecimals);
+    assert.equal(await tokenSwapInstance.foundationSupply(), foundationSupply * tenDecimals);
+    assert.equal(await tokenSwapInstance.ready(), false);    // Verify that distribution hasn't been initialized
 
     // Check Token variables are correct
-    assert.equal(await tokenInstance.balanceOf(myBitFoundation), foundationSupply, "Verify that foundation received tokens"); 
-    assert.equal(await tokenInstance.balanceOf(trInstance.address), circulatingSupply, "Verify that Distribution contract has all new tokens");  
-    assert.equal(await tokenInstance.decimals(), 8, "New Token should have 8 decimal places");
-    assert.equal(await tokenInstance.totalSupply(), (tokenSupply * decimals));
+    assert.equal(await tokenInstance.balanceOf(myBitFoundation), foundationSupply * tenDecimals, "Verify that foundation received tokens"); 
+    assert.equal(await tokenInstance.balanceOf(tokenSwapInstance.address), circulatingSupply * tenDecimals, "Verify that Distribution contract has all new tokens");  
+    assert.equal(await tokenInstance.decimals(), 18, "New Token should have 18 decimal places");
+    assert.equal(await tokenInstance.totalSupply(), tokenSupply * tenDecimals);
     assert.equal(await tokenInstance.name(), name);
     assert.equal(await tokenInstance.symbol(), symbol);
 
@@ -80,27 +93,26 @@ contract('TokenSale', async (accounts) => {
   // it("Will reject any token swaps until a sanity check is made", async () => { 
   //   let ownerOldTokenBalance = await oldTokenInstance.balanceOf(ownerOne); 
   //   // Approve transfer
-  //   await oldTokenInstance.approve(trInstance.address, ownerOldTokenBalance); 
-  //   await trInstance.swap(ownerOldTokenBalance); 
+  //   await oldTokenInstance.approve(tokenSwapInstance.address, ownerOldTokenBalance); 
+  //   await tokenSwapInstance.swap(ownerOldTokenBalance); 
   // });
 
   it("Verify that numbers add up", async () => { 
-    await trInstance.sanityCheck()
-    assert.equal(await trInstance.ready(), true);
+    await tokenSwapInstance.sanityCheck()
+    assert.equal(await tokenSwapInstance.ready(), true);
   });
 
 
-  it("Swap Old tokens for new ones account one", async () => { 
+  it("Swap Old tokens for new tokens... account one", async () => { 
     let ownerOldTokenBalance = await oldTokenInstance.balanceOf(ownerOne); 
-    console.log(ownerOldTokenBalance);
     // Approve transfer
-    await oldTokenInstance.approve(trInstance.address, ownerOldTokenBalance); 
-    await trInstance.swap(ownerOldTokenBalance); 
+    await oldTokenInstance.approve(tokenSwapInstance.address, ownerOldTokenBalance); 
+    await tokenSwapInstance.swap(ownerOldTokenBalance); 
     //Check tokens transferred properly
     assert.equal(await oldTokenInstance.balanceOf(ownerOne), 0, "Old token balance wasn't updated properly");
     console.log(await tokenInstance.balanceOf(ownerOne));
-    console.log(ownerOldTokenBalance * scalingFactor);  
-    assert.equal(await tokenInstance.balanceOf(ownerOne), (ownerOldTokenBalance * scalingFactor), "New token balance does not match expected");
+    console.log(ownerOldTokenBalance * scalingFactor * tenDecimals);  
+    assert.equal(await tokenInstance.balanceOf(ownerOne) / 10**10, (ownerOldTokenBalance * scalingFactor), "New token balance does not match expected");
   });
 
   const acc = 1;
