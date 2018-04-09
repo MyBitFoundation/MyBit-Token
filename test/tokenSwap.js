@@ -69,12 +69,6 @@ contract('TokenSale', async (accounts) => {
     assert.equal(await tokenSwapInstance.totalSupply(), tokenSupply * tenDecimals);
     assert.equal(await tokenSwapInstance.tenDecimalPlaces(), tenDecimals);
     assert.equal(await tokenSwapInstance.scalingFactor(), scalingFactor);  // Scaling factor is moved up 10, due to lack of decimals in solidity
-    console.log("Foundation supply");
-    console.log(await tokenSwapInstance.foundationSupply());
-    console.log("circulatingSupply");
-    console.log(await tokenSwapInstance.circulatingSupply());
-    console.log("Total supply");
-    console.log(await tokenSwapInstance.totalSupply()); 
     assert.equal(await tokenSwapInstance.circulatingSupply(), circulatingSupply * tenDecimals);
     assert.equal(await tokenSwapInstance.foundationSupply(), foundationSupply * tenDecimals);
     assert.equal(await tokenSwapInstance.ready(), false);    // Verify that distribution hasn't been initialized
@@ -110,22 +104,29 @@ contract('TokenSale', async (accounts) => {
     await tokenSwapInstance.swap(ownerOldTokenBalance); 
     //Check tokens transferred properly
     assert.equal(await oldTokenInstance.balanceOf(ownerOne), 0, "Old token balance wasn't updated properly");
-    console.log(await tokenInstance.balanceOf(ownerOne));
-    console.log(ownerOldTokenBalance * scalingFactor * tenDecimals);  
     assert.equal(await tokenInstance.balanceOf(ownerOne) / 10**10, (ownerOldTokenBalance * scalingFactor), "New token balance does not match expected");
   });
-
 
   it("transfer new tokens to self", async () => { 
     let ownerTokenBalance = await tokenInstance.balanceOf(ownerOne); 
     await tokenInstance.transfer(ownerOne, ownerTokenBalance);    // transfer to self
+    await tokenInstance.approve(ownerOne, ownerTokenBalance);    // Approve self to transfer
+    await tokenInstance.transferFrom(ownerOne, ownerOne, ownerTokenBalance / 2);    // TransferFrom self to self 
+    await tokenInstance.transferFrom(ownerOne, ownerOne, ownerTokenBalance / 2);    // TransferFrom self to self 
     assert.equal(await tokenInstance.balanceOf(ownerOne) - ownerTokenBalance, 0);
   }); 
+
+  // // TODO: catch EVM error and continue
+  // it("try transferFrom without approval", async () => { 
+  //   let ownerTokenBalance = await tokenInstance.balanceOf(ownerOne); 
+  //   await tokenInstance.transferFrom(ownerOne, ownerTwo, ownerTokenBalance / 2);    
+  // });
 
   it("transfer 0 new tokens", async () => { 
     let ownerTokenBalance = await tokenInstance.balanceOf(ownerOne); 
     await tokenInstance.transfer(ownerOne, 0);    // transfer to self
     await tokenInstance.transfer(myBitFoundation, 0);    // transfer to self
+    await tokenInstance.transferFrom(ownerOne, ownerTwo, 0, {from:ownerTwo}); 
     assert.equal(await tokenInstance.balanceOf(ownerOne) - ownerTokenBalance, 0);
   });
 
@@ -136,10 +137,18 @@ contract('TokenSale', async (accounts) => {
   //   assert.equal(await tokenInstance.balanceOf(ownerOne), ownerTokenBalance);
   // });
 
-  // // TODO: catch EVM error and continue
-  // it("transfer max tokens", async () => { 
+  //   // TODO: catch EVM error and continue
+  // it("transferFrom more tokens than ownerOne has", async () => { 
   //   let ownerTokenBalance = await tokenInstance.balanceOf(ownerOne); 
-  //   await tokenInstance.transfer(myBitFoundation, (2**256 + 1));    
+  //   await tokenInstance.approve(ownerTwo, ownerTokenBalance * 2);
+  //   await tokenInstance.transferFrom(ownerOne, ownerTwo, (ownerTokenBalance * 2), {from: ownerTwo});    
+  //   // assert.equal(await tokenInstance.balanceOf(ownerOne), ownerTokenBalance);
+  // });
+
+  // // TODO: catch EVM error and continue
+  // it("try to overflow tokens", async () => { 
+  //   let ownerTokenBalance = await tokenInstance.balanceOf(ownerOne); 
+  //   await tokenInstance.transfer(ownerOne, (2**256));    
   //   assert.equal(await tokenInstance.balanceOf(ownerOne) - ownerTokenBalance, 0);
   // });
 
@@ -148,12 +157,6 @@ contract('TokenSale', async (accounts) => {
     let myBitFoundationBalance = await tokenInstance.balanceOf(myBitFoundation);
     let balanceTogether = (ownerTokenBalance / tenDecimals) + (myBitFoundationBalance / tenDecimals);    // Scaled down due to large numbers
     await tokenInstance.transfer(myBitFoundation, ownerTokenBalance);   
-    console.log("myBitFoundationBalance");
-    console.log(myBitFoundationBalance);
-    console.log("ownerTokenBalance");
-    console.log(ownerTokenBalance);
-    console.log("after transfer mybf");
-    console.log(await tokenInstance.balanceOf(myBitFoundation));
     let newFoundationBalance = await tokenInstance.balanceOf(myBitFoundation); 
     assert.equal(balanceTogether - (newFoundationBalance / tenDecimals), 0);
     await tokenInstance.transfer(ownerOne, ownerTokenBalance, {from: myBitFoundation});  
@@ -161,7 +164,33 @@ contract('TokenSale', async (accounts) => {
     assert.equal(await tokenInstance.balanceOf(ownerOne) - ownerTokenBalance, 0);
   });
 
-  // TODO: test transferFrom
+var acc = 1;
+  it("Swap old tokens in many transactions", async () => { 
+    var thisUser = web3.eth.accounts[acc];
+    let oldTokensRemaining = await oldTokenInstance.balanceOf(thisUser); 
+    let newTokenBalance = await tokenInstance.balanceOf(thisUser);
+    var numberOfTransactions = 50;  
+    var numberOldTokensSwapped = 0;
+    var minimalSwapAmount = 1; 
+      // await oldTokenInstance.approve(tokenSwapInstance.address, oldTokensRemaining, {from: thisUser}); 
+    for (var i = 0; i < 50; i++) { 
+      await oldTokenInstance.approve(tokenSwapInstance.address, minimalSwapAmount, {from: thisUser}); 
+      await tokenSwapInstance.swap(minimalSwapAmount, {from: thisUser});
+      numberOldTokensSwapped += minimalSwapAmount; 
+      let updatedNewTokens = Number(await tokenInstance.balanceOf(thisUser));
+      let updatedOldTokens = Number(await oldTokenInstance.balanceOf(thisUser));
+      assert.equal(Number(oldTokenPerAccount - numberOldTokensSwapped), updatedOldTokens, "Old token balance not updated properly");
+      assert.equal(Number((numberOldTokensSwapped * scalingFactor) * 10**10), updatedNewTokens, "Wrong amount of new tokens were given");
+      oldTokensRemaining = updatedOldTokens;
+      newTokenBalance = updatedNewTokens;
+
+    }
+
+
+    });
+
+
+
   // TODO: test approveandcall()
   // TODO: test sending tokens to old address
   // TODO: 

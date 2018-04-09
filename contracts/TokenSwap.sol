@@ -84,19 +84,19 @@ contract TokenSwap is Owned{
   // ------------------------------------------------------------------------
   // New Token Supply
   // ------------------------------------------------------------------------  
-  uint256 public totalSupply = 18000000000000000 * tenDecimalPlaces;
-  uint256 public circulatingSupply = 10123464384447336 * tenDecimalPlaces;
-  uint256 public foundationSupply = totalSupply - circulatingSupply; 
+  uint256 public totalSupply = 18000000000000000 * tenDecimalPlaces;      // New token supply. Move from 8 decimal places to 18
+  uint256 public circulatingSupply = 10123464384447336 * tenDecimalPlaces;   // New user supply. 
+  uint256 public foundationSupply = totalSupply - circulatingSupply;      // Foundation supply. 
 
   // ------------------------------------------------------------------------
   // Distribution numbers 
   // ------------------------------------------------------------------------
-  uint256 public tokensRedeemed = 0;
+  uint256 public tokensRedeemed = 0;    // Total number of new tokens redeemed.
 
   // ------------------------------------------------------------------------
   // Safety Checks 
   // ------------------------------------------------------------------------
-  bool public ready = false;
+  bool public ready = false;     // Have all the supply numbers been properly calculated? 
 
 
   // ------------------------------------------------------------------------

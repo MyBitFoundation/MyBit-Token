@@ -55,7 +55,6 @@ contract ERC20 is ERC20Interface{
     public 
     returns (bool success) {
         require(_to != address(0));
-        require(_amount <= balances[msg.sender]);        // TODO:  superfluous
         balances[msg.sender] = balances[msg.sender].sub(_amount);
         balances[_to] = balances[_to].add(_amount);
         Transfer(msg.sender, _to, _amount);
@@ -70,7 +69,6 @@ contract ERC20 is ERC20Interface{
     public 
     returns (bool success) {
         require(_to != address(0)); 
-        require(_amount <= balances[msg.sender]);
         balances[_from] = balances[_from].sub(_amount);
         allowed[_from][msg.sender] = allowed[_from][msg.sender].sub(_amount);
         balances[_to] = balances[_to].add(_amount);
@@ -108,7 +106,7 @@ contract ERC20 is ERC20Interface{
     function burn(uint _amount) 
     public 
     returns (bool success) {
-        require(_amount <= balances[msg.sender]);    // TODO: superfluous with safemath
+        // require(_amount <= balances[msg.sender]);    // TODO: Safemath checks this safemath
         address burner = msg.sender;
         balances[burner] = balances[burner].sub(_amount);
         supply = supply.sub(_amount);
@@ -123,8 +121,6 @@ contract ERC20 is ERC20Interface{
     function burnFrom(address _from, uint _amount) 
     public 
     returns (bool success) {
-        require(balances[_from] >= _amount);                // TODO: superfluous
-        require(_amount <= allowed[_from][msg.sender]);    // TODO: superfluous
         balances[_from] = balances[_from].sub(_amount);                         // Subtract from the targeted balance
         allowed[_from][msg.sender] = allowed[_from][msg.sender].sub(_amount);             // Subtract from the sender's allowance
         supply = supply.sub(_amount);                              // Update supply
@@ -139,7 +135,7 @@ contract ERC20 is ERC20Interface{
     function totalSupply()
     public 
     view 
-    returns (uint totalSupply) { 
+    returns (uint tokenSupply) { 
         return supply; 
     }
 
