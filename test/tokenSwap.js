@@ -164,36 +164,72 @@ contract('TokenSale', async (accounts) => {
     assert.equal(await tokenInstance.balanceOf(ownerOne) - ownerTokenBalance, 0);
   });
 
-var acc = 1;
+
   it("Swap old tokens in many transactions", async () => { 
-    var thisUser = web3.eth.accounts[acc];
-    let oldTokensRemaining = await oldTokenInstance.balanceOf(thisUser); 
-    let newTokenBalance = await tokenInstance.balanceOf(thisUser);
+    var thisUser = web3.eth.accounts[1];
+    var oldTokensRemaining = await oldTokenInstance.balanceOf(thisUser); 
+    let newTokensCreated = await tokenInstance.balanceOf(thisUser);
     var numberOfTransactions = 50;  
     var numberOldTokensSwapped = 0;
     var minimalSwapAmount = 1; 
-      // await oldTokenInstance.approve(tokenSwapInstance.address, oldTokensRemaining, {from: thisUser}); 
-    for (var i = 0; i < 50; i++) { 
+    // Send 50 transactiosn with the minimum swap amount (0.00000001 MYB) == 0.000000360000000000 (NewMyB)
+    for (let i = 0; i < 50; i++) { 
       await oldTokenInstance.approve(tokenSwapInstance.address, minimalSwapAmount, {from: thisUser}); 
       await tokenSwapInstance.swap(minimalSwapAmount, {from: thisUser});
       numberOldTokensSwapped += minimalSwapAmount; 
       let updatedNewTokens = Number(await tokenInstance.balanceOf(thisUser));
       let updatedOldTokens = Number(await oldTokenInstance.balanceOf(thisUser));
+      assert.equal(Number(numberOldTokensSwapped), oldTokenPerAccount - updatedOldTokens, "Number of old tokens swapped doesn't add up"); 
       assert.equal(Number(oldTokenPerAccount - numberOldTokensSwapped), updatedOldTokens, "Old token balance not updated properly");
       assert.equal(Number((numberOldTokensSwapped * scalingFactor) * 10**10), updatedNewTokens, "Wrong amount of new tokens were given");
+      assert.equal(Number(((oldTokensRemaining - updatedOldTokens) * scalingFactor) * 10**10), (updatedNewTokens - newTokensCreated), "Token swap numbers are off"); 
       oldTokensRemaining = updatedOldTokens;
-      newTokenBalance = updatedNewTokens;
-
+      newTokensCreated = updatedNewTokens;
     }
-
-
+    oldTokensRemaining = await oldTokenInstance.balanceOf(thisUser); 
+    await oldTokenInstance.approve(tokenSwapInstance.address, oldTokensRemaining, {from: thisUser}); 
+    await tokenSwapInstance.swap(oldTokensRemaining, {from: thisUser}); 
+    assert.equal(Number(await oldTokenInstance.balanceOf(thisUser)), 0); 
+    assert.equal(Number(await tokenInstance.balanceOf(thisUser)), (oldTokenPerAccount * scalingFactor) * 10**10);
     });
 
 
+  it("Give someone who already swapped more old tokens to trade in", async () => { 
+    let wontSwap = web3.eth.accounts[2]; 
+    let thisUser = web3.eth.accounts[1]; 
+    assert.equal(Number(await oldTokenInstance.balanceOf(thisUser)), 0, "user should have balance of 0");
+    await oldTokenInstance.transfer(thisUser, Number(await oldTokenInstance.balanceOf(wontSwap)), {from: wontSwap}); 
+    assert.equal(Number(await oldTokenInstance.balanceOf(wontSwap)), 0, "Transfer of old tokens didn't work"); 
+    assert.equal(Number(await oldTokenInstance.balanceOf(thisUser)), oldTokenPerAccount, "Balance of user isn't what was expected");
+    let thisUserNewTokenBalance = Number(await tokenInstance.balanceOf(thisUser)); 
+    assert.equal(thisUserNewTokenBalance, (oldTokenPerAccount * scalingFactor) * 10**10); 
+    await oldTokenInstance.approve(tokenSwapInstance.address, oldTokenPerAccount, {from: thisUser}); 
+    await tokenSwapInstance.swap(oldTokenPerAccount, {from: thisUser}); 
+    assert.equal(Number(await oldTokenInstance.balanceOf(thisUser)), 0); 
+    assert.equal(Number(await tokenInstance.balanceOf(thisUser) / 2), (oldTokenPerAccount * scalingFactor) * 10**10);
+  });
+
+  it("Swap the rest of the old tokens", async () => { 
+    for (let i = 3; i < web3.eth.accounts.length; i++) { 
+      let thisUser = web3.eth.accounts[i]; 
+      assert.equal(Number(await oldTokenInstance.balanceOf(thisUser)), oldTokenPerAccount); 
+      await oldTokenInstance.approve(tokenSwapInstance.address, oldTokenPerAccount, {from: thisUser}); 
+      await tokenSwapInstance.swap(oldTokenPerAccount, {from: thisUser});
+      assert.equal(Number(await oldTokenInstance.balanceOf(thisUser)), 0); 
+      assert.equal(Number(await tokenInstance.balanceOf(thisUser)), (oldTokenPerAccount * scalingFactor) * 10**10);
+    }
+    // All tokens should now be swapped for new ones
+    assert.equal(Number(await oldTokenInstance.totalSupply()), Number(await oldTokenInstance.balanceOf(tokenSwapInstance.address)));
+    assert.equal(Number(await tokenSwapInstance.circulatingSupply()), (Number(await oldTokenInstance.totalSupply()) * scalingFactor) * 10**10); 
+  });
+
+  it("Burn Tokens ", async () => { 
+
+
+  });
 
   // TODO: test approveandcall()
-  // TODO: test sending tokens to old address
-  // TODO: 
+
 
   // it("Swap old tokens in many transactions", async () => { 
 

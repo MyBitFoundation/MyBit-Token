@@ -55,6 +55,7 @@ contract Owned {
 // This contract is in-charge of receiving old MyBit tokens and returning
 // New MyBit tokens to users.
 // Note: Old tokens have 8 decimal places, while new tokens have 18 decimals
+// 1.00000000 OldMyBit == 36.000000000000000000 NewMyBit
 // ------------------------------------------------------------------------  
 contract TokenSwap is Owned{ 
   using SafeMath for uint256; 
