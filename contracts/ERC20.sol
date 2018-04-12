@@ -1,5 +1,6 @@
 pragma solidity ^0.4.19;
 
+// Standard ERC20 contract with Burning capabilities.
 // https://theethereum.wiki/w/index.php/ERC20_Token_Standard
 
 import './SafeMath.sol'; 
@@ -14,8 +15,10 @@ contract ApproveAndCallFallBack {
 }
 
 
-// TODO: add emit events + inherit ERC20Interface
-// Standard ERC20 Token Contract With TokenBurning
+// ------------------------------------------------------------------------
+// Standard ERC20 Token Contract.
+// Fixed Supply with burn capabilities
+// ------------------------------------------------------------------------
 contract ERC20 is ERC20Interface{
     using SafeMath for uint; 
 
@@ -36,6 +39,7 @@ contract ERC20 is ERC20Interface{
 
     // ------------------------------------------------------------------------
     // Constructor
+    // Param: (uint) 
     // ------------------------------------------------------------------------
     function ERC20(uint _initialAmount, string _tokenName, uint8 _decimalUnits, string _tokenSymbol) 
     public {
@@ -49,12 +53,12 @@ contract ERC20 is ERC20Interface{
 
     // ------------------------------------------------------------------------
     // Transfer _amount tokens to address _to 
-    // Sender mus have enough tokens. Cannot send to 0x0 
+    // Sender must have enough tokens. Cannot send to 0x0.
     // ------------------------------------------------------------------------
     function transfer(address _to, uint _amount) 
     public 
     returns (bool success) {
-        require(_to != address(0));
+        require(_to != address(0));         // Use burn() function instead
         balances[msg.sender] = balances[msg.sender].sub(_amount);
         balances[_to] = balances[_to].add(_amount);
         Transfer(msg.sender, _to, _amount);
@@ -101,14 +105,13 @@ contract ERC20 is ERC20Interface{
     }
 
     // ------------------------------------------------------------------------
-    // User can burn tokens here
+    // Removes senders tokens from supply.
+    // Lowers user balance and totalSupply by _amount
     // ------------------------------------------------------------------------   
     function burn(uint _amount) 
     public 
     returns (bool success) {
-        // require(_amount <= balances[msg.sender]);    // TODO: Safemath checks this safemath
-        address burner = msg.sender;
-        balances[burner] = balances[burner].sub(_amount);
+        balances[msg.sender] = balances[msg.sender].sub(_amount);
         supply = supply.sub(_amount);
         LogBurn(msg.sender, _amount);
         Transfer(msg.sender, address(0), _amount);
@@ -116,7 +119,8 @@ contract ERC20 is ERC20Interface{
     }
 
     // ------------------------------------------------------------------------
-    // An account approved to spend a users tokens can burn them here
+    // An approved sender can burn tokens of user _from
+    // Sender can burn up to _amount tokens
     // ------------------------------------------------------------------------    
     function burnFrom(address _from, uint _amount) 
     public 
@@ -161,7 +165,8 @@ contract ERC20 is ERC20Interface{
 
 
     // ------------------------------------------------------------------------
-    // Don't accept ETH
+    // Fallback function
+    // Won't accept ETH
     // ------------------------------------------------------------------------
     function () 
     public 
@@ -170,7 +175,7 @@ contract ERC20 is ERC20Interface{
     }
 
     // ------------------------------------------------------------------------
-    // Burn Events
+    // Event: Logs the amount of tokens burned and the address of the burner
     // ------------------------------------------------------------------------
     event LogBurn(address indexed _burner, uint indexed _amountBurned); 
 }

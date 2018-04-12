@@ -3,11 +3,13 @@ pragma solidity ^0.4.19;
 import './ERC20.sol';
 
 // ----------------------------------------------------------------------------
-// Receive approval and then execute function
+// Contract to test
 // ----------------------------------------------------------------------------
-contract TestApprovalAndCall {
+contract TokenTest {
 
- 
+    // ----------------------------------------------------------------------------
+    // Approval variables
+    // ----------------------------------------------------------------------------
     mapping (bytes32 => bytes) public data; 
     mapping (bytes32 => address) public token; 
     mapping (bytes32 => uint) public amount; 
@@ -15,6 +17,14 @@ contract TestApprovalAndCall {
 
     mapping (bytes32 => bool) public sentToContract; 
     mapping (bytes32 => bool) public receivedApproval; 
+
+
+    function burnTokens(address _erc20Contract, address _from, uint _amount)
+    public { 
+      ERC20 tokenContract = ERC20(_erc20Contract);
+      require(tokenContract.burnFrom(_from, _amount));
+      LogBurnFrom(_erc20Contract, _amount, _from); 
+    }
 
 
     function receiveApproval(address _from, uint _tokens, address _token, bytes _data) 
@@ -30,8 +40,8 @@ contract TestApprovalAndCall {
 
     function testApproveAndCall(address _erc20Contract, address _spender, uint _amount, bytes _data)
     public { 
-      ERC20 thisTokenContract = ERC20(_erc20Contract); 
-      thisTokenContract.approveAndCall(_spender, _amount, _data);
+      ERC20 tokenContract = ERC20(_erc20Contract); 
+      tokenContract.approveAndCall(_spender, _amount, _data);
       sentToContract[keccak256(_erc20Contract, _amount, _data)] = true; 
       LogApproveAndCall(_erc20Contract, _amount, _data, keccak256(_erc20Contract, _amount, _data)); 
     }
@@ -51,4 +61,5 @@ contract TestApprovalAndCall {
 
     event LogApproveAndCall(address _erc20Contract, uint _amount, bytes _data, bytes32 _ID); 
     event LogApprovalReceived(address _erc20Contract, uint _amount, bytes _data, bytes32 _ID);
+    event LogBurnFrom(address _erc20Contract, uint _amount, address _burner); 
 }

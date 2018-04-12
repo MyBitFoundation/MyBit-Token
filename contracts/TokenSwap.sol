@@ -118,6 +118,7 @@ contract TokenSwap is Owned{
   function sanityCheck()
   public 
   onlyOwner { 
+    require (ready == false);
     assert ((circulatingSupply.div(oldCirculatingSupply.mul(tenDecimalPlaces))) == scalingFactor);
     assert (totalSupply.div(oldTotalSupply.mul(tenDecimalPlaces)) == scalingFactor);
     assert ((circulatingSupply.mul(10**11).div(totalSupply)) == circulatingPercentage); 
