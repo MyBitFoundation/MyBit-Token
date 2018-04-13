@@ -88,7 +88,6 @@ contract TokenSwap is Owned{
 
   // ------------------------------------------------------------------------
   // Double check that all variables are set properly before swapping tokens
-  // TODO: Make this contract owner of ERC20?  (For retrieving lost tokens)
   // ------------------------------------------------------------------------
   function TokenSwap(address _myBitFoundation, address _oldTokenAddress)
   public { 
@@ -107,14 +106,13 @@ contract TokenSwap is Owned{
     require (ready == false);
     assert ((circulatingSupply.div(oldCirculatingSupply.mul(tenDecimalPlaces))) == scalingFactor);
     assert (totalSupply.div(oldTotalSupply.mul(tenDecimalPlaces)) == scalingFactor);
-    assert ((circulatingSupply.mul(10**11).div(totalSupply)) == circulatingPercentage); 
+    assert ((circulatingSupply.mul(10**11).div(totalSupply)) == circulatingPercentage);  
     ready = true;
   }
 
   // ------------------------------------------------------------------------
   // Users can trade old MyBit tokens for new MyBit tokens here 
-  // Must approve this contract to transfer in tokens
-  // TODO: Re-entrancy?
+  // Must approve this contract to transfer in 
   // ------------------------------------------------------------------------
   function swap(uint256 _amount) 
   public 
