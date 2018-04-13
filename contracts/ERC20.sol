@@ -84,11 +84,11 @@ contract ERC20 is ERC20Interface{
     // Token owner can approve for `spender` to transferFrom(...) `tokens`
     // from the token owner's account
     // ------------------------------------------------------------------------
-    function approve(address spender, uint tokens) 
+    function approve(address _spender, uint _amount) 
     public 
     returns (bool success) {
-        allowed[msg.sender][spender] = tokens;
-        Approval(msg.sender, spender, tokens);
+        allowed[msg.sender][_spender] = _amount;
+        Approval(msg.sender, _spender, _amount);
         return true;
     }
 
@@ -97,10 +97,12 @@ contract ERC20 is ERC20Interface{
     // Token holder can notify a contract that it has been approved
     // to spend _amount of tokens
     // ------------------------------------------------------------------------
-    function approveAndCall(address spender, uint tokens, bytes data) public returns (bool success) {
-        allowed[msg.sender][spender] = tokens;
-        Approval(msg.sender, spender, tokens);
-        ApproveAndCallFallBack(spender).receiveApproval(msg.sender, tokens, this, data);
+    function approveAndCall(address _spender, uint _amount, bytes _data) 
+    public 
+    returns (bool success) {
+        allowed[msg.sender][_spender] = _amount;
+        Approval(msg.sender, _spender, _amount);
+        ApproveAndCallFallBack(_spender).receiveApproval(msg.sender, _amount, this, _data);
         return true;
     }
 
@@ -119,8 +121,8 @@ contract ERC20 is ERC20Interface{
     }
 
     // ------------------------------------------------------------------------
-    // An approved sender can burn tokens of user _from
-    // Sender can burn up to _amount tokens
+    // An approved sender can burn _amount tokens of user _from
+    // Lowers user balance and supply by _amount 
     // ------------------------------------------------------------------------    
     function burnFrom(address _from, uint _amount) 
     public 
@@ -154,7 +156,7 @@ contract ERC20 is ERC20Interface{
     }
 
     // ------------------------------------------------------------------------
-    // Returns amount of tokens _spender is allowed to transfer/burn
+    // Returns amount of tokens _spender is allowed to transfer or burn
     // ------------------------------------------------------------------------
     function allowance(address _tokenHolder, address _spender) 
     public 

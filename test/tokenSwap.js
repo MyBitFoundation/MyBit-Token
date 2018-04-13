@@ -1,12 +1,14 @@
 
-var bigInt = require("big-integer");
+var BigNumber = require('bignumber.js');
+var BigInteger = require('./biginteger.js').BigInteger;
+
 
 // Initiate contract artifacts
 const Token = artifacts.require("./ERC20.sol");
 const TokenSwap = artifacts.require("./TokenSwap.sol");
 const OldToken = artifacts.require("./CSToken.sol");
 const TokenTest = artifacts.require("./TokenTest.sol");
-
+const Math = artifacts.require("./Math.sol");
 
 contract('TokenSwap', async (accounts) => {
   const ownerOne = web3.eth.accounts[0];
@@ -19,7 +21,7 @@ contract('TokenSwap', async (accounts) => {
   let tokenSwapInstance;
   let oldTokenInstance;
   let testInstance;
-
+  let mathInstance;
 
    // Distribute old token 
   const oldTokenSupply = 281207344012426;  
@@ -31,6 +33,11 @@ contract('TokenSwap', async (accounts) => {
   it("deploy tester contract", async () => { 
     // Deploy testing contract 
     testInstance = await TokenTest.new();
+  });
+
+  it("Deploy math helper contract", async () => { 
+
+    mathInstance = await Math.new(); 
   });
 
   // Deploy old MyBitToken contract
@@ -85,6 +92,7 @@ contract('TokenSwap', async (accounts) => {
     assert.equal(await tokenSwapInstance.scalingFactor(), scalingFactor);  // Scaling factor is moved up 10, due to lack of decimals in solidity
     assert.equal(await tokenSwapInstance.circulatingSupply(), circulatingSupply * tenDecimals);
     assert.equal(await tokenSwapInstance.foundationSupply(), foundationSupply * tenDecimals);
+    assert.equal(await tokenSwapInstance.owner(), web3.eth.accounts[0]);
     assert.equal(await tokenSwapInstance.ready(), false);    // Verify that distribution hasn't been initialized
 
     // Check Token variables are correct
@@ -97,13 +105,22 @@ contract('TokenSwap', async (accounts) => {
 
   });
 
-  // // TODO: Catch EVM errors and continue
-  // it("Will reject any token swaps until a sanity check is made", async () => { 
-  //   let ownerOldTokenBalance = await oldTokenInstance.balanceOf(ownerOne); 
-  //   // Approve transfer
-  //   await oldTokenInstance.approve(tokenSwapInstance.address, ownerOldTokenBalance); 
-  //   await tokenSwapInstance.swap(ownerOldTokenBalance); 
-  // });
+
+  // TODO: Catch EVM errors and continue
+  it("Will reject any token swaps until a sanity check is made", async () => { 
+    let ownerOldTokenBalance = Number(await oldTokenInstance.balanceOf(ownerOne)); 
+    // Approve transfer
+    await oldTokenInstance.approve(tokenSwapInstance.address, ownerOldTokenBalance);     
+    try {
+      await tokenSwapInstance.swap(ownerOldTokenBalance);     
+    } catch(e) { 
+        console.log("EVM error: TokenSwap contract not ready");
+        return true;
+    }  
+    finally {
+    assert.equal(Number(await oldTokenInstance.balanceOf(ownerOne)), ownerOldTokenBalance);
+    }  
+  });
 
   it("Verify that numbers add up", async () => { 
     await tokenSwapInstance.sanityCheck()
@@ -121,6 +138,7 @@ contract('TokenSwap', async (accounts) => {
     assert.equal(await tokenInstance.balanceOf(ownerOne) / 10**10, (ownerOldTokenBalance * scalingFactor), "New token balance does not match expected");
   });
 
+  // Transfer tokens to self
   it("transfer new tokens to self", async () => { 
     let ownerTokenBalance = await tokenInstance.balanceOf(ownerOne); 
     await tokenInstance.transfer(ownerOne, ownerTokenBalance);    // transfer to self
@@ -130,50 +148,116 @@ contract('TokenSwap', async (accounts) => {
     assert.equal(await tokenInstance.balanceOf(ownerOne) - ownerTokenBalance, 0);
   }); 
 
-  // // TODO: catch EVM error and continue
-  // it("try transferFrom without approval", async () => { 
-  //   let ownerTokenBalance = await tokenInstance.balanceOf(ownerOne); 
-  //   await tokenInstance.transferFrom(ownerOne, ownerTwo, ownerTokenBalance / 2);    
-  // });
+  // Should fail: calling transferFrom without approval
+  it("try transferFrom without approval", async () => { 
+    let ownerTokenBalance = Number(await tokenInstance.balanceOf(ownerOne)); 
+    try {
+    await tokenInstance.transferFrom(ownerOne, ownerTwo, ownerTokenBalance / 2);     
+    } catch(e) { 
+        console.log("EVM error: transferFrom without any allowance");
+        return true;
+    }  
+    finally {
+    assert.equal(Number(await tokenInstance.balanceOf(ownerOne)), ownerTokenBalance);
+    } 
+      
+  });
 
+    // Contract should allow transfer of 0 tokens
+  it("transfer to address(0)", async () => { 
+    let ownerTokenBalance = Number(await tokenInstance.balanceOf(ownerOne));
+    let nullAddress = 0x0000000000000000000000000000000000000000;  
+    try { 
+      await tokenInstance.transfer(nullAddress, ownerTokenBalance);
+    } catch(e) { 
+        console.log("EVM error: Can't transfer to null address");
+    }
+    finally { 
+      assert.equal(ownerTokenBalance, Number(await tokenInstance.balanceOf(ownerOne)));
+    }
+  });
+
+      // Contract should allow transfer of 0 tokens
+  it("transferFrom to address(0)", async () => { 
+    let ownerTokenBalance = Number(await tokenInstance.balanceOf(ownerOne));
+    let transferer = web3.eth.accounts[3];
+    let nullAddress = 0x0000000000000000000000000000000000000000;  
+    await tokenInstance.approve(transferer, ownerTokenBalance); 
+    assert.equal(Number(await tokenInstance.allowance(ownerOne, transferer)), ownerTokenBalance); 
+    try { 
+      await tokenInstance.transferFrom(ownerOne, nullAddress, ownerTokenBalance, {from: transferer});
+    } catch(e) { 
+        console.log("EVM error: Can't transfer to null address");
+    }
+    finally { 
+      assert.equal(ownerTokenBalance, Number(await tokenInstance.balanceOf(ownerOne)));
+    }
+  });
+
+  // Contract should allow transfer of 0 tokens
   it("transfer 0 new tokens", async () => { 
-    let ownerTokenBalance = await tokenInstance.balanceOf(ownerOne); 
+    let ownerTokenBalance = Number(await tokenInstance.balanceOf(ownerOne)); 
     await tokenInstance.transfer(ownerOne, 0);    // transfer to self
     await tokenInstance.transfer(myBitFoundation, 0);    // transfer to self
     await tokenInstance.transferFrom(ownerOne, ownerTwo, 0, {from:ownerTwo}); 
+    await tokenInstance.transferFrom(ownerTwo, ownerOne, 0, {from:ownerOne});
     assert.equal(await tokenInstance.balanceOf(ownerOne) - ownerTokenBalance, 0);
   });
 
-  // // TODO: catch EVM error and continue
-  // it("transfer more tokens than ownerOne has", async () => { 
-  //   let ownerTokenBalance = await tokenInstance.balanceOf(ownerOne); 
-  //   await tokenInstance.transfer(myBitFoundation, (ownerTokenBalance * 2));    
-  //   assert.equal(await tokenInstance.balanceOf(ownerOne), ownerTokenBalance);
-  // });
+  // Should fail: Transfer amount exceeds balance
+  it("transfer more tokens than ownerOne has", async () => { 
+    let ownerTokenBalance = Number(await tokenInstance.balanceOf(ownerOne)); 
+    try {
+    await tokenInstance.transfer(myBitFoundation, (ownerTokenBalance * 2));   
+    } catch(e) { 
+        console.log("EVM error: number of tokens being transferred exceeds balance");
+        return true;
+    }  
+    finally {
+    assert.equal(await tokenInstance.balanceOf(ownerOne), ownerTokenBalance);
+    } 
+  });
 
-  //   // TODO: catch EVM error and continue
-  // it("transferFrom more tokens than ownerOne has", async () => { 
-  //   let ownerTokenBalance = await tokenInstance.balanceOf(ownerOne); 
-  //   await tokenInstance.approve(ownerTwo, ownerTokenBalance * 2);
-  //   await tokenInstance.transferFrom(ownerOne, ownerTwo, (ownerTokenBalance * 2), {from: ownerTwo});    
-  //   // assert.equal(await tokenInstance.balanceOf(ownerOne), ownerTokenBalance);
-  // });
+    // Should fail: TransferFrom amount exceeds balance
+  it("transferFrom more tokens than ownerOne has", async () => { 
+    let ownerTokenBalance = Number(await tokenInstance.balanceOf(ownerOne)); 
+    await tokenInstance.approve(ownerTwo, ownerTokenBalance * 2);
+    try {
+    await tokenInstance.transferFrom(ownerOne, ownerTwo, (ownerTokenBalance * 2), {from: ownerTwo});  
+    } catch(e) { 
+        console.log("EVM error: amount being transferredFrom() exceeds balance");
+        return true;
+    }  
+    finally {
+    assert.equal(Number(await tokenInstance.balanceOf(ownerOne)), ownerTokenBalance);
+    assert.equal(Number(await tokenInstance.allowance(ownerOne, ownerTwo)), ownerTokenBalance * 2); 
+  }
+  });
 
-  // // TODO: catch EVM error and continue
-  // it("try to overflow tokens", async () => { 
-  //   let ownerTokenBalance = await tokenInstance.balanceOf(ownerOne); 
-  //   await tokenInstance.transfer(ownerOne, (2**256));    
-  //   assert.equal(await tokenInstance.balanceOf(ownerOne) - ownerTokenBalance, 0);
-  // });
+
+  it("try to overflow tokens", async () => { 
+    let ownerTokenBalance = await tokenInstance.balanceOf(ownerOne); 
+    try {
+      await tokenInstance.transfer(ownerOne, (2**256));    
+    } catch(e){ 
+        console.log("EVM error: max uint attempted on transfer()");
+        return true;
+    }
+    finally { 
+    assert.equal(await tokenInstance.balanceOf(ownerOne) - ownerTokenBalance, 0);
+    }
+  });
 
   it("transfer all tokens and receive them back", async () => { 
-    let ownerTokenBalance = await tokenInstance.balanceOf(ownerOne); 
-    let myBitFoundationBalance = await tokenInstance.balanceOf(myBitFoundation);
-    let balanceTogether = (ownerTokenBalance / tenDecimals) + (myBitFoundationBalance / tenDecimals);    // Scaled down due to large numbers
-    await tokenInstance.transfer(myBitFoundation, ownerTokenBalance);   
-    let newFoundationBalance = await tokenInstance.balanceOf(myBitFoundation); 
-    assert.equal(balanceTogether - (newFoundationBalance / tenDecimals), 0);
-    await tokenInstance.transfer(ownerOne, ownerTokenBalance, {from: myBitFoundation});  
+    let ownerTokenBalance = BigInteger(await tokenInstance.balanceOf(ownerOne)); 
+    let myBitFoundationBalance = BigInteger(await tokenInstance.balanceOf(myBitFoundation));
+    let balanceTogether = ownerTokenBalance.add(myBitFoundationBalance);    // Scaled down due to large numbers
+    await tokenInstance.transfer(myBitFoundation, Number(ownerTokenBalance));   
+    let newFoundationBalance = BigInteger(await tokenInstance.balanceOf(myBitFoundation)); 
+    console.log(balanceTogether);
+    console.log(newFoundationBalance); 
+    assert.equal(Number(await tokenInstance.balanceOf(myBitFoundation)), myBitFoundationBalance.add(ownerTokenBalance));
+    await tokenInstance.transfer(ownerOne, Number(ownerTokenBalance), {from: myBitFoundation});  
     assert.equal(myBitFoundationBalance - await tokenInstance.balanceOf(myBitFoundation), 0); 
     assert.equal(await tokenInstance.balanceOf(ownerOne) - ownerTokenBalance, 0);
   });
@@ -223,15 +307,23 @@ contract('TokenSwap', async (accounts) => {
     assert.equal(Number(await tokenInstance.balanceOf(thisUser) / 2), (oldTokenPerAccount * scalingFactor) * 10**10);
   });
 
-  //   // TODO: Catch EVM error and continue
-  //   it("Swap more tokens than user has", async () => { 
-  //   let thisUser = web3.eth.accounts[2];
-  //   await oldTokenInstance.approve(tokenSwapInstance.address, oldTokenPerAccount * 2); 
-  //   await tokenSwapInstance.swap(oldTokenPerAccount * 2, {from: thisUser}); 
-  //   assert.equal(Number(await oldTokenInstance.balanceOf(thisUser)), 0); 
-  //   assert.equal(Number(await tokenInstance.balanceOf(thisUser) / 2), (oldTokenPerAccount * scalingFactor) * 10**10);
-  // });
+    // Try to Swap more tokens than available
+  it("Swap more tokens than user has", async () => { 
+    let thisUser = web3.eth.accounts[3];
+    await oldTokenInstance.approve(tokenSwapInstance.address, oldTokenPerAccount * 3, {from: thisUser}); 
+    try {
+      await tokenSwapInstance.swap(oldTokenPerAccount * 3, {from: thisUser}); 
+    } catch(e){ 
+        console.log("EVM error as expected, when swapping more tokens than available");
+        return true;
+    }
+    finally { 
+    assert.equal(Number(await oldTokenInstance.balanceOf(thisUser)), oldTokenPerAccount); 
+    assert.equal(Number(await tokenInstance.balanceOf(thisUser)), 0);
+  }
+  });
 
+  // Start at account 3 (0, 1 and 2 have already swapped)
   it("Swap the rest of the old tokens", async () => { 
     for (let i = 3; i < web3.eth.accounts.length; i++) { 
       let thisUser = web3.eth.accounts[i]; 
@@ -246,33 +338,39 @@ contract('TokenSwap', async (accounts) => {
     assert.equal(Number(await tokenSwapInstance.circulatingSupply()), (Number(await oldTokenInstance.totalSupply()) * scalingFactor) * 10**10); 
   });
 
-  it("Burn Tokens ", async () => { 
+  it("Burn owner Tokens ", async () => { 
     let currentSupply = Number(await tokenInstance.totalSupply()); 
     let ownerBalance = Number(await tokenInstance.balanceOf(ownerOne));
-    let newSupply = (currentSupply / 10**8) - (ownerBalance / 10**8);  
+    let newSupply = BigInteger(currentSupply).subtract(ownerBalance);  
     await tokenInstance.burn(ownerBalance); 
     assert.equal(Number(await tokenInstance.balanceOf(ownerOne)), 0, "User balance should be 0"); 
-    assert.equal(newSupply * 10**8, Number(await tokenInstance.totalSupply()), "Total supply did not decremented properly"); 
+    assert.equal(Number(newSupply), Number(await tokenInstance.totalSupply()), "Total supply did not decremented properly"); 
   });
 
   it("Burn Tokens in many small transactions", async () => { 
     let thisUser = web3.eth.accounts[2];
-    let currentSupply = Number(await tokenInstance.totalSupply()); 
-    let userBalance = Number(await tokenInstance.balanceOf(thisUser));
-    let numIterations = 50; 
+    let beginningSupply = BigInteger(await tokenInstance.totalSupply()); 
+    let userBalance = BigInteger(await tokenInstance.balanceOf(thisUser));
+    let supplyAfter = beginningSupply.subtract(userBalance);  // Take owners balance out of supply
+    let numIterations = 100; 
     //  burn 1 New MyB token 'numIterations' times
     for (let i = 0; i < numIterations; i++) { 
       await tokenInstance.burn(1, {from: thisUser}); 
       assert.equal(userBalance, Number(await tokenInstance.balanceOf(thisUser)) + i, "User balance didn't decrement properly"); 
-      assert.equal(currentSupply, Number(await tokenInstance.totalSupply()) + i, "TotalSupply didn't decrement properly");
+      assert.equal(beginningSupply, Number(await tokenInstance.totalSupply()) + i, "TotalSupply didn't decrement properly");
     }
-    assert.equal(Number(await tokenInstance.totalSupply()) + numIterations, currentSupply); 
+    assert.equal(Number(await tokenInstance.totalSupply()) + numIterations, beginningSupply); 
     assert.equal(Number(await tokenInstance.balanceOf(thisUser)) + numIterations, userBalance);
     await tokenInstance.burn(await tokenInstance.balanceOf(thisUser), {from: thisUser});
     assert.equal(Number(await tokenInstance.balanceOf(thisUser)), 0); 
-    assert.equal(Number(await tokenInstance.totalSupply()) + userBalance, currentSupply)
+    console.log("beginningSupply");
+    console.log(beginningSupply);
+    console.log("user balance");
+    console.log(userBalance);
+    console.log("supply after");
+    console.log(supplyAfter);
+    assert.equal(Number(await tokenInstance.totalSupply()), Number(supplyAfter));
   });
-
 
   it("Burn 0 tokens", async () => { 
     let thisUser = web3.eth.accounts[1]; 
@@ -287,49 +385,85 @@ contract('TokenSwap', async (accounts) => {
   });
 
   it("Burn more tokens than user has", async () => { 
+    var thisUser = web3.eth.accounts[1]; 
+    let totalSupply = Number(await tokenInstance.totalSupply());
+    let userBalance = Number(await tokenInstance.balanceOf(thisUser));
+    let overflow = userBalance * 1000; 
+    assert.notEqual(overflow, userBalance);
+    try {
+      await tokenInstance.burn(overflow, {from: thisUser});
+    } catch (e) { 
+      console.log("EVM error: Attempted to burn more tokens than user has");
+      return true;
+    } 
+      finally { 
+      console.log(totalSupply);
+      console.log(Number(await tokenInstance.totalSupply()));
+      assert.equal(userBalance, Number(await tokenInstance.balanceOf(thisUser))); 
+      assert.equal(totalSupply, Number(await tokenInstance.totalSupply()));
+    }
+  });
+
+  // Approve test contract to burn tokens for user 1
+  it("Let test contract BurnFrom account 1", async () => { 
     let thisUser = web3.eth.accounts[1]; 
     let totalSupply = Number(await tokenInstance.totalSupply());
     let userBalance = Number(await tokenInstance.balanceOf(thisUser)); 
-    try {
-      await tokenInstance.burn(userBalance + 1);
-    } catch (e){ 
-      return true;
-    } assert.equal(false,true);
-    throw new Error("User shouldn't be able to burn more tokens than available");
-    assert.equal(userBalance, Number(await tokenInstance.balanceOf(thisUser))); 
-    assert.equal(totalSupply, Number(await tokenInstance.totalSupply()));
+    assert.notEqual(userBalance, 0);
+    let supplyAfterBurn = BigInteger(totalSupply).subtract(userBalance);
+    await tokenInstance.approve(testInstance.address, userBalance, {from: thisUser}); 
+    assert.equal(Number(await tokenInstance.allowance(thisUser, testInstance.address)), userBalance);
+    await testInstance.burnTokens(tokenInstance.address, thisUser, userBalance, {from: thisUser});
+    assert.equal(Number(await tokenInstance.allowance(thisUser, testInstance.address)), 0);
+    assert.equal(Number(await tokenInstance.totalSupply()), supplyAfterBurn); 
+    assert.equal(Number(await tokenInstance.balanceOf(thisUser)), 0); 
   });
 
-  // it("Let test contract BurnFrom account 1", async () => { 
-  //   let thisUser = web3.eth.accounts[1]; 
-  //   let totalSupply = Number(await tokenInstance.totalSupply());
-  //   let userBalance = Number(await tokenInstance.balanceOf(thisUser)); 
-  //   console.log(totalSupply);
-  //   console.log(userBalance);
-  //   let supplyAfterBurn = Number((totalSupply / 10**5) - (userBalance / 10**5)) * 10**5;
-  //   await tokenInstance.approve(testInstance.address, userBalance, {from: thisUser}); 
-  //   assert.equal(Number(await tokenInstance.allowance(thisUser, testInstance.address)), userBalance);
-  //   await testInstance.burnTokens(tokenInstance.address, thisUser, userBalance);
-  //   assert.equal(Number(await tokenInstance.allowance(thisUser, testInstance.address)), 0);
-  //   assert.equal(Number(await tokenInstance.totalSupply()), supplyAfterBurn); 
-  //   assert.equal(Number(await tokenInstance.balanceOf(thisUser)), 0); 
-  // });
+
+  // Approve test contract to burn tokens for user 1
+  it("Let test contract burnFrom more than account balance", async () => { 
+    let thisUser = web3.eth.accounts[3]; 
+    let totalSupply = Number(await tokenInstance.totalSupply());
+    let userBalance = Number(await tokenInstance.balanceOf(thisUser)); 
+    let overflowBalance = await mathInstance.add(userBalance, 10);
+    assert.notEqual(Number(await mathInstance.sub(overflowBalance, userBalance)), 0);
+    assert.notEqual(userBalance, 0);
+    await tokenInstance.approve(testInstance.address, Number(overflowBalance), {from: thisUser}); 
+    assert.equal(Number(await tokenInstance.allowance(thisUser, testInstance.address)), Number(overflowBalance));
+    try { 
+      await testInstance.burnTokens(tokenInstance.address, thisUser, overflowBalance, {from: thisUser});
+    } catch(e) {  
+        console.log("EVM erorr: Tried to burnFrom more tokens than user has");
+        return true;    
+    } 
+    finally{ 
+        assert.equal(Number(await tokenInstance.allowance(thisUser, testInstance.address)), overflowBalance);
+        assert.equal(Number(await tokenInstance.totalSupply()), totalSupply); 
+        assert.equal(Number(await tokenInstance.balanceOf(thisUser)), userBalance); 
+      }
+  });
+
+  it("Test approveandcall", async () => { 
+    let thisUser = web3.eth.accounts[2];
+    let userBalance = Number(await tokenInstance.balanceOf(thisUser)); 
+    let txData = await testInstance.stringToData("Person Name");
+    let approveID = await testInstance.getCallID(tokenInstance.address, userBalance, txData);
+    await tokenInstance.approveAndCall(testInstance.address, userBalance, txData, {from: thisUser}); 
+    assert.equal(Number(await tokenInstance.allowance(thisUser, testInstance.address)), userBalance);
+    assert.equal(await testInstance.receivedApproval(approveID), true); 
+    assert.equal(await testInstance.data(approveID), txData);
+    assert.equal(await testInstance.token(approveID), tokenInstance.address);
+    assert.equal(await testInstance.amount(approveID), userBalance);
+    assert.equal(await testInstance.from(approveID), thisUser); 
+    // Check tokens were burned
+    assert.equal(await tokenInstance.balanceOf(thisUser), 0); 
+    
+  }); 
 
 
-  // it("Test approveandcall", async () => { 
-  //   let thisUser = web3.eth.accounts[2];
+  it("Burn rest of the tokens", async () => { 
 
 
-  // }); 
-
-  // TODO: test approveandcall()
-  // TODO: BigIntegers 
-  // TODO: try catch()
-  // Document
-
-  // it("Swap old tokens in many transactions", async () => { 
-
-
-  // });
+  }); 
 
 });

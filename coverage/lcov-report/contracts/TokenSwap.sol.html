@@ -1,0 +1,509 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <title>Code coverage report for contracts/TokenSwap.sol</title>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="../prettify.css" />
+    <link rel="stylesheet" href="../base.css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style type='text/css'>
+        .coverage-summary .sorter {
+            background-image: url(../sort-arrow-sprite.png);
+        }
+    </style>
+</head>
+<body>
+<div class='wrapper'>
+  <div class='pad1'>
+    <h1>
+      <a href="../index.html">all files</a> / <a href="index.html">contracts/</a> TokenSwap.sol
+    </h1>
+    <div class='clearfix'>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">100% </span>
+        <span class="quiet">Statements</span>
+        <span class='fraction'>18/18</span>
+      </div>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">60% </span>
+        <span class="quiet">Branches</span>
+        <span class='fraction'>12/20</span>
+      </div>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">100% </span>
+        <span class="quiet">Functions</span>
+        <span class='fraction'>6/6</span>
+      </div>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">100% </span>
+        <span class="quiet">Lines</span>
+        <span class='fraction'>21/21</span>
+      </div>
+    </div>
+  </div>
+  <div class='status-line high'></div>
+<pre><table class="coverage">
+<tr><td class="line-count quiet">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75
+76
+77
+78
+79
+80
+81
+82
+83
+84
+85
+86
+87
+88
+89
+90
+91
+92
+93
+94
+95
+96
+97
+98
+99
+100
+101
+102
+103
+104
+105
+106
+107
+108
+109
+110
+111
+112
+113
+114
+115
+116
+117
+118
+119
+120
+121
+122
+123
+124
+125
+126
+127
+128
+129
+130
+131
+132
+133
+134
+135
+136
+137
+138
+139
+140
+141
+142
+143
+144
+145
+146
+147
+148
+149</td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2×</span>
+<span class="cline-any cline-yes">2×</span>
+<span class="cline-any cline-yes">2×</span>
+<span class="cline-any cline-yes">2×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">86×</span>
+<span class="cline-any cline-yes">85×</span>
+<span class="cline-any cline-yes">85×</span>
+<span class="cline-any cline-yes">85×</span>
+<span class="cline-any cline-yes">85×</span>
+<span class="cline-any cline-yes">85×</span>
+<span class="cline-any cline-yes">85×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">87×</span>
+<span class="cline-any cline-yes">86×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">pragma solidity ^0.4.19;
+&nbsp;
+import './ERC20.sol';
+import './SafeMath.sol';
+&nbsp;
+// ------------------------------------------------------------------------
+// Interface for old MyBitToken 
+// ------------------------------------------------------------------------  
+interface MyBitToken {
+&nbsp;
+  function totalSupply() public constant returns (uint256);
+&nbsp;
+  function balanceOf(address _owner) public constant returns (uint256);
+&nbsp;
+  function transfer(address _to, uint256 _value) public;
+&nbsp;
+  function transferFrom(address _from, address _to, uint256 _value) public returns (bool);
+&nbsp;
+  function approve(address _spender, uint256 _value) public returns (bool);
+&nbsp;
+  function allowance(address _owner, address _spender) public constant returns (uint256);
+}
+&nbsp;
+// ------------------------------------------------------------------------
+// Ownership controls. 
+// ------------------------------------------------------------------------  
+contract Owned {
+    address public owner;
+&nbsp;
+    function Owned() public {
+        owner = msg.sender;
+    }
+&nbsp;
+    modifier onlyOwner {
+        <span class="missing-if-branch" title="else path not taken" >E</span>require(msg.sender == owner);
+        _;
+    }
+}
+&nbsp;
+// ------------------------------------------------------------------------
+// This contract is in-charge of receiving old MyBit tokens and returning
+// New MyBit tokens to users.
+// Note: Old tokens have 8 decimal places, while new tokens have 18 decimals
+// 1.00000000 OldMyBit == 36.000000000000000000 NewMyBit
+// ------------------------------------------------------------------------  
+contract TokenSwap is Owned{ 
+  using SafeMath for uint256; 
+&nbsp;
+&nbsp;
+  // ------------------------------------------------------------------------
+  // Token addresses
+  // ------------------------------------------------------------------------  
+  address public oldTokenAddress;
+  ERC20 public newToken; 
+&nbsp;
+  // ------------------------------------------------------------------------
+  // Token Transition Info
+  // ------------------------------------------------------------------------  
+  uint256 public scalingFactor = 36;          // 1 OldMyBit = 36 NewMyBit
+  uint256 public circulatingPercentage = 56241468802;   // The percentage of totalsupply previously released. floating point 10^11
+  uint256 public tenDecimalPlaces = 10**10; 
+&nbsp;
+&nbsp;
+  // ------------------------------------------------------------------------
+  // Old Token Supply 
+  // ------------------------------------------------------------------------  
+  uint256 public oldCirculatingSupply = 281207344012426;      // Old MyBit supply in circulation (8 decimals)
+  uint256 public oldTotalSupply = 500000000000000;          // Old MyBit supply not yet released (8 decimals)
+&nbsp;
+&nbsp;
+  // ------------------------------------------------------------------------
+  // New Token Supply
+  // ------------------------------------------------------------------------  
+  uint256 public totalSupply = 18000000000000000 * tenDecimalPlaces;      // New token supply. Move from 8 decimal places to 18
+  uint256 public circulatingSupply = 10123464384447336 * tenDecimalPlaces;   // New user supply. 
+  uint256 public foundationSupply = totalSupply - circulatingSupply;      // Foundation supply. 
+&nbsp;
+  // ------------------------------------------------------------------------
+  // Distribution numbers 
+  // ------------------------------------------------------------------------
+  uint256 public tokensRedeemed = 0;    // Total number of new tokens redeemed.
+&nbsp;
+  // ------------------------------------------------------------------------
+  // Safety Checks 
+  // ------------------------------------------------------------------------
+  bool public ready = false;     // Have all the supply numbers been properly calculated? 
+&nbsp;
+&nbsp;
+  // ------------------------------------------------------------------------
+  // Double check that all variables are set properly before swapping tokens
+  // TODO: Make this contract owner of ERC20?  (For retrieving lost tokens)
+  // ------------------------------------------------------------------------
+  function TokenSwap(address _myBitFoundation, address _oldTokenAddress)
+  public { 
+    <span class="missing-if-branch" title="else path not taken" >E</span>assert (totalSupply == circulatingSupply + foundationSupply); 
+    oldTokenAddress = _oldTokenAddress; 
+    newToken = new ERC20(totalSupply, "MyBit", 18, "MYB"); 
+    newToken.transfer(_myBitFoundation, foundationSupply);
+  }
+&nbsp;
+  // ------------------------------------------------------------------------
+  // Double check that all variables are set properly before swapping tokens
+  // ------------------------------------------------------------------------
+  function sanityCheck()
+  public 
+  onlyOwner { 
+    <span class="missing-if-branch" title="else path not taken" >E</span>require (ready == false);
+    <span class="missing-if-branch" title="else path not taken" >E</span>assert ((circulatingSupply.div(oldCirculatingSupply.mul(tenDecimalPlaces))) == scalingFactor);
+    <span class="missing-if-branch" title="else path not taken" >E</span>assert (totalSupply.div(oldTotalSupply.mul(tenDecimalPlaces)) == scalingFactor);
+    <span class="missing-if-branch" title="else path not taken" >E</span>assert ((circulatingSupply.mul(10**11).div(totalSupply)) == circulatingPercentage); 
+    ready = true;
+  }
+&nbsp;
+  // ------------------------------------------------------------------------
+  // Users can trade old MyBit tokens for new MyBit tokens here 
+  // Must approve this contract to transfer in tokens
+  // TODO: Re-entrancy?
+  // ------------------------------------------------------------------------
+  function swap(uint256 _amount) 
+  public 
+  whenReady
+  returns (bool){ 
+    require(MyBitToken(oldTokenAddress).transferFrom(msg.sender, this, _amount));
+    <span class="missing-if-branch" title="else path not taken" >E</span>require(tokensRedeemed.add(_amount) &lt;= circulatingSupply);
+    uint256 newTokenAmount = _amount.mul(scalingFactor).mul(tenDecimalPlaces);   // Add 10 more decimals to number of tokens
+    tokensRedeemed = tokensRedeemed.add(newTokenAmount);
+    <span class="missing-if-branch" title="else path not taken" >E</span>require(newToken.transfer(msg.sender, newTokenAmount));
+    LogTokenSwap(msg.sender, _amount, block.timestamp);
+    return true;
+  }
+&nbsp;
+  // ------------------------------------------------------------------------
+  // Events 
+  // ------------------------------------------------------------------------
+  event LogTokenSwap(address indexed _sender, uint256 indexed _amount, uint256 indexed _timestamp); 
+&nbsp;
+&nbsp;
+  // ------------------------------------------------------------------------
+  // modifiers 
+  // ------------------------------------------------------------------------
+  modifier whenReady { 
+    require(ready);
+    _;
+  }
+&nbsp;
+&nbsp;
+}
+&nbsp;
+&nbsp;</pre></td></tr>
+</table></pre>
+<div class='push'></div><!-- for sticky footer -->
+</div><!-- /wrapper -->
+<div class='footer quiet pad2 space-top1 center small'>
+  Code coverage
+  generated by <a href="http://istanbul-js.org/" target="_blank">istanbul</a> at Fri Apr 13 2018 10:18:08 GMT-0700 (PDT)
+</div>
+</div>
+<script src="../prettify.js"></script>
+<script>
+window.onload = function () {
+        if (typeof prettyPrint === 'function') {
+            prettyPrint();
+        }
+};
+</script>
+<script src="../sorter.js"></script>
+</body>
+</html>
