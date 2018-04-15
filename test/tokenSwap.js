@@ -464,6 +464,8 @@ contract('TokenSwap', async (accounts) => {
       assert.equal(await tokenInstance.balanceOf(thisUser), 0);
       assert.equal(await tokenInstance.totalSupply(), BigInteger(totalSupply).sub(thisUserBalance));
     }
+    assert.equal(await tokenInstance.totalSupply(), 0); 
+    
   }); 
 
 });

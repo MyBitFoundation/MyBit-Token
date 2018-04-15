@@ -91,7 +91,6 @@ contract TokenSwap is Owned{
   // ------------------------------------------------------------------------
   function TokenSwap(address _myBitFoundation, address _oldTokenAddress)
   public { 
-    assert (totalSupply == circulatingSupply + foundationSupply); 
     oldTokenAddress = _oldTokenAddress; 
     newToken = new ERC20(totalSupply, "MyBit", 18, "MYB"); 
     newToken.transfer(_myBitFoundation, foundationSupply);
@@ -104,7 +103,9 @@ contract TokenSwap is Owned{
   public 
   onlyOwner { 
     require (ready == false);
+    assert (totalSupply == circulatingSupply + foundationSupply); 
     assert ((circulatingSupply.div(oldCirculatingSupply.mul(tenDecimalPlaces))) == scalingFactor);
+    assert (totalSupply.div(oldTotalSupply.mul(tenDecimalPlaces)) == scalingFactor); 
     assert (totalSupply.div(oldTotalSupply.mul(tenDecimalPlaces)) == scalingFactor);
     assert ((circulatingSupply.mul(10**11).div(totalSupply)) == circulatingPercentage);  
     ready = true;
