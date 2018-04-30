@@ -115,16 +115,17 @@ contract TokenSwap is Owned{
   // Users can trade old MyBit tokens for new MyBit tokens here 
   // Must approve this contract to transfer in 
   // ------------------------------------------------------------------------
-  function swap(uint256 _amount) 
+  function receiveApproval(address _from, uint _amount, address _token, bytes _data)
   public 
   whenReady
   returns (bool){ 
+    require(_token == oldTokenAddress);
     require(tokensRedeemed.add(_amount) <= circulatingSupply);
-    require(MyBitToken(oldTokenAddress).transferFrom(msg.sender, this, _amount));
+    require(MyBitToken(oldTokenAddress).transferFrom(_from, this, _amount));
     uint256 newTokenAmount = _amount.mul(scalingFactor).mul(tenDecimalPlaces);   // Add 10 more decimals to number of tokens
     tokensRedeemed = tokensRedeemed.add(newTokenAmount);
-    require(newToken.transfer(msg.sender, newTokenAmount));
-    LogTokenSwap(msg.sender, _amount, block.timestamp);
+    require(newToken.transfer(_from, newTokenAmount));
+    LogTokenSwap(_from, _amount, block.timestamp);
     return true;
   }
 
