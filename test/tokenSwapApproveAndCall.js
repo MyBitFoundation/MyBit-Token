@@ -1,9 +1,6 @@
-// ---------------------------------------------------------------------------------------------------
-//  Requiresat least 9 accounts
-// ---------------------------------------------------------------------------------------------------
-
-var BigInteger = require('./biginteger.js').BigInteger;
 var BigNumber = require('bignumber.js');
+var BigInteger = require('./biginteger.js').BigInteger;
+
 
 // Initiate contract artifacts
 const Token = artifacts.require("./ERC20.sol");
@@ -76,6 +73,8 @@ contract('TokenSwap', async (accounts) => {
  const foundationSupply = tokenSupply - circulatingSupply; 
  const scalingFactor = 36;   // 1 OldToken = 36 New Tokens
 
+ let randomBytes = 0xf1b958bf74d93b0d26522cbe7d3eae2b9056fbabb13b19bfdd891a5a34006a7d; 
+
   it("deploy swap contract", async () => { 
     assert.equal(tokenSupply, (circulatingSupply + foundationSupply));   
     tokenSwapInstance = await TokenSwap.new(myBitFoundation, oldTokenInstance.address);    // Constructor deploys new token
@@ -105,8 +104,7 @@ contract('TokenSwap', async (accounts) => {
   it("Swap Old tokens for new tokens... account one", async () => { 
     let ownerOldTokenBalance = await oldTokenInstance.balanceOf(ownerOne); 
     // Approve transfer
-    await oldTokenInstance.approve(tokenSwapInstance.address, ownerOldTokenBalance); 
-    await tokenSwapInstance.swap(ownerOldTokenBalance); 
+    await oldTokenInstance.approveAndCall(tokenSwapInstance.address, ownerOldTokenBalance, randomBytes); 
     //Check tokens transferred properly
     assert.equal(await oldTokenInstance.balanceOf(ownerOne), 0, "Old token balance wasn't updated properly");
     assert.equal(await tokenInstance.balanceOf(ownerOne) / 10**10, (ownerOldTokenBalance * scalingFactor), "New token balance does not match expected");
@@ -241,13 +239,13 @@ contract('TokenSwap', async (accounts) => {
     var thisUser = web3.eth.accounts[1];
     var oldTokensRemaining = await oldTokenInstance.balanceOf(thisUser); 
     let newTokensCreated = await tokenInstance.balanceOf(thisUser);
-    var numberOfTransactions = 25;  
+    var numberOfTransactions = 50;  
     var numberOldTokensSwapped = 0;
     var minimalSwapAmount = 1; 
     // Send 50 transactiosn with the minimum swap amount (0.00000001 MYB) == 0.000000360000000000 (NewMyB)
-    for (let i = 0; i < numberOfTransactions; i++) { 
-      await oldTokenInstance.approve(tokenSwapInstance.address, minimalSwapAmount, {from: thisUser}); 
-      await tokenSwapInstance.swap(minimalSwapAmount, {from: thisUser});
+    for (let i = 0; i < 50; i++) { 
+      await oldTokenInstance.approveAndCall(tokenSwapInstance.address, minimalSwapAmount, randomBytes, {from: thisUser}); 
+      // await tokenSwapInstance.swap(minimalSwapAmount, {from: thisUser});
       numberOldTokensSwapped += minimalSwapAmount; 
       let updatedNewTokens = Number(await tokenInstance.balanceOf(thisUser));
       let updatedOldTokens = Number(await oldTokenInstance.balanceOf(thisUser));
@@ -259,8 +257,8 @@ contract('TokenSwap', async (accounts) => {
       newTokensCreated = updatedNewTokens;
     }
     oldTokensRemaining = await oldTokenInstance.balanceOf(thisUser); 
-    await oldTokenInstance.approve(tokenSwapInstance.address, oldTokensRemaining, {from: thisUser}); 
-    await tokenSwapInstance.swap(oldTokensRemaining, {from: thisUser}); 
+    await oldTokenInstance.approveAndCall(tokenSwapInstance.address, oldTokensRemaining, randomBytes, {from: thisUser}); 
+    // await tokenSwapInstance.swap(oldTokensRemaining, {from: thisUser}); 
     assert.equal(Number(await oldTokenInstance.balanceOf(thisUser)), 0); 
     assert.equal(Number(await tokenInstance.balanceOf(thisUser)), (oldTokenPerAccount * scalingFactor) * 10**10);
     });
@@ -275,8 +273,8 @@ contract('TokenSwap', async (accounts) => {
     assert.equal(Number(await oldTokenInstance.balanceOf(thisUser)), oldTokenPerAccount, "Balance of user isn't what was expected");
     let thisUserNewTokenBalance = Number(await tokenInstance.balanceOf(thisUser)); 
     assert.equal(thisUserNewTokenBalance, (oldTokenPerAccount * scalingFactor) * 10**10); 
-    await oldTokenInstance.approve(tokenSwapInstance.address, oldTokenPerAccount, {from: thisUser}); 
-    await tokenSwapInstance.swap(oldTokenPerAccount, {from: thisUser}); 
+    await oldTokenInstance.approveAndCall(tokenSwapInstance.address, oldTokenPerAccount, randomBytes, {from: thisUser}); 
+    // await tokenSwapInstance.swap(oldTokenPerAccount, {from: thisUser}); 
     assert.equal(Number(await oldTokenInstance.balanceOf(thisUser)), 0); 
     assert.equal(Number(await tokenInstance.balanceOf(thisUser) / 2), (oldTokenPerAccount * scalingFactor) * 10**10);
   });
@@ -284,9 +282,8 @@ contract('TokenSwap', async (accounts) => {
     // Try to Swap more tokens than available
   it("Swap more tokens than user has", async () => { 
     let thisUser = web3.eth.accounts[3];
-    await oldTokenInstance.approve(tokenSwapInstance.address, oldTokenPerAccount * 3, {from: thisUser}); 
     try {
-      await tokenSwapInstance.swap(oldTokenPerAccount * 3, {from: thisUser}); 
+    await oldTokenInstance.approveAndCall(tokenSwapInstance.address, oldTokenPerAccount * 3, randomBytes, {from: thisUser}); 
     } catch(e){ 
         console.log("EVM error as expected, when swapping more tokens than available");
         return true;
@@ -304,8 +301,7 @@ contract('TokenSwap', async (accounts) => {
       assert.notEqual(Number(await oldTokenInstance.balanceOf(thisUser)), 0); 
       let amountToSwap = BigInteger(await oldTokenInstance.balanceOf(thisUser));
       let preBalance = BigInteger(await tokenInstance.balanceOf(thisUser)); 
-      await oldTokenInstance.approve(tokenSwapInstance.address, Number(amountToSwap), {from: thisUser}); 
-      await tokenSwapInstance.swap(Number(amountToSwap), {from: thisUser});
+      await oldTokenInstance.approveAndCall(tokenSwapInstance.address, Number(amountToSwap), randomBytes, {from: thisUser}); 
       assert.equal(Number(await oldTokenInstance.balanceOf(thisUser)), 0); 
       assert.equal(Number(await tokenInstance.balanceOf(thisUser)), Number(amountToSwap.multiply(scalingFactor).multiply(10**10)) + preBalance);
     }
@@ -348,25 +344,25 @@ contract('TokenSwap', async (accounts) => {
     assert.equal(supplyAfter.eq(await tokenInstance.totalSupply()), true);
   });
   
-// Note: account[2] didn't swap tokens in
+// // Note: account[2] didn't swap tokens in
 
   it("Burn 0 tokens", async () => { 
     let thisUser = web3.eth.accounts[3]; 
-    let totalSupply = await tokenInstance.totalSupply();
-    let userBalance = await tokenInstance.balanceOf(thisUser); 
+    let totalSupply = Number(await tokenInstance.totalSupply());
+    let userBalance = Number(await tokenInstance.balanceOf(thisUser)); 
     await tokenInstance.burn(0); 
-    assert.equal(BigNumber(userBalance).eq(await tokenInstance.balanceOf(thisUser)), true); 
-    assert.equal(BigNumber(totalSupply).eq(await tokenInstance.totalSupply()), true);
+    assert.equal(userBalance, Number(await tokenInstance.balanceOf(thisUser))); 
+    assert.equal(totalSupply, Number(await tokenInstance.totalSupply()));
     await testInstance.burnTokens(tokenInstance.address, thisUser, 0); 
-    assert.equal(BigNumber(userBalance).eq(await tokenInstance.balanceOf(thisUser)), true); 
-    assert.equal(BigNumber(totalSupply).eq(await tokenInstance.totalSupply()), true);
+    assert.equal(userBalance, Number(await tokenInstance.balanceOf(thisUser))); 
+    assert.equal(totalSupply, Number(await tokenInstance.totalSupply()));
   });
 
   it("Burn more tokens than user has", async () => { 
     var thisUser = web3.eth.accounts[3]; 
-    let totalSupply = await tokenInstance.totalSupply();
-    let userBalance = await tokenInstance.balanceOf(thisUser);
-    let overflow = BigNumber(userBalance).times(1000); 
+    let totalSupply = Number(await tokenInstance.totalSupply());
+    let userBalance = Number(await tokenInstance.balanceOf(thisUser));
+    let overflow = userBalance * 1000; 
     assert.notEqual(overflow, userBalance);
     try {
       await tokenInstance.burn(overflow, {from: thisUser});
@@ -376,9 +372,9 @@ contract('TokenSwap', async (accounts) => {
     } 
       finally { 
       console.log(totalSupply);
-      console.log(await tokenInstance.totalSupply());
-      assert.equal(BigNumber(userBalance).eq(await tokenInstance.balanceOf(thisUser)), true); 
-      assert.equal(BigNumber(totalSupply).eq(await tokenInstance.totalSupply()), true);
+      console.log(Number(await tokenInstance.totalSupply()));
+      assert.equal(userBalance, Number(await tokenInstance.balanceOf(thisUser))); 
+      assert.equal(totalSupply, Number(await tokenInstance.totalSupply()));
     }
   });
 
@@ -447,7 +443,7 @@ contract('TokenSwap', async (accounts) => {
       if (thisUserBalance == 0) {  return;   }
       await tokenInstance.burn(thisUserBalance, {from: thisUser});
       assert.equal(await tokenInstance.balanceOf(thisUser), 0);
-      assert.equal(Number(await tokenInstance.totalSupply()), BigInteger(totalSupply).subtract(thisUserBalance));
+      assert.equal(await tokenInstance.totalSupply(), BigInteger(totalSupply).subtract(thisUserBalance));
     }
     assert.equal(await tokenInstance.totalSupply(), 0); 
     assert.equal(await tokenSwapInstance.tokensRedeemed(), await tokenSwapInstance.circulatingSupply());

@@ -27,7 +27,7 @@ contract ERC20 is ERC20Interface{
     // ------------------------------------------------------------------------
     uint internal supply;
     mapping (address => uint) internal balances;
-    mapping (address => mapping (address => uint)) public allowed;
+    mapping (address => mapping (address => uint)) internal allowed;
 
     // ------------------------------------------------------------------------
     // Token Information
@@ -39,7 +39,6 @@ contract ERC20 is ERC20Interface{
 
     // ------------------------------------------------------------------------
     // Constructor
-    // Param: (uint) 
     // ------------------------------------------------------------------------
     function ERC20(uint _initialAmount, string _tokenName, uint8 _decimalUnits, string _tokenSymbol) 
     public {
@@ -48,6 +47,7 @@ contract ERC20 is ERC20Interface{
         name = _tokenName;                                   // Set the name for display purposes
         decimals = _decimalUnits;                            // Amount of decimals for display purposes
         symbol = _tokenSymbol;                               // Set the symbol for display purposes
+        Transfer(address(0), msg.sender, _initialAmount);    // Transfer event indicating token creation
     }
 
 
