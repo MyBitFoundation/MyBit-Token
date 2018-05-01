@@ -64,7 +64,7 @@ contract TokenSwap is Owned{
   // ------------------------------------------------------------------------
   // Old Token Supply 
   // ------------------------------------------------------------------------  
-  uint256 public oldCirculatingSupply = 281207344012426;      // Old MyBit supply in circulation (8 decimals)
+  uint256 public oldCirculatingSupply;      // Old MyBit supply in circulation (8 decimals)
   uint256 public oldTotalSupply = 500000000000000;          // Old MyBit supply not yet released (8 decimals)
 
 
@@ -80,11 +80,6 @@ contract TokenSwap is Owned{
   // ------------------------------------------------------------------------
   uint256 public tokensRedeemed = 0;    // Total number of new tokens redeemed.
 
-  // ------------------------------------------------------------------------
-  // Safety Checks 
-  // ------------------------------------------------------------------------
-  bool public ready = false;     // Have all the supply numbers been properly calculated? 
-
 
   // ------------------------------------------------------------------------
   // Double check that all variables are set properly before swapping tokens
@@ -92,23 +87,12 @@ contract TokenSwap is Owned{
   function TokenSwap(address _myBitFoundation, address _oldTokenAddress)
   public { 
     oldTokenAddress = _oldTokenAddress; 
+    oldCirculatingSupply = ERC20(oldTokenAddress).totalSupply(); 
+    assert ((circulatingSupply.div(oldCirculatingSupply.mul(tenDecimalPlaces))) == scalingFactor);
+    // assert (totalSupply.div(oldTotalSupply.mul(tenDecimalPlaces)) == scalingFactor); 
+    assert (oldCirculatingSupply.mul(scalingFactor.mul(tenDecimalPlaces)) == circulatingSupply); 
     newToken = new ERC20(totalSupply, "MyBit", 18, "MYB"); 
     newToken.transfer(_myBitFoundation, foundationSupply);
-  }
-
-  // ------------------------------------------------------------------------
-  // Double check that all variables are set properly before swapping tokens
-  // ------------------------------------------------------------------------
-  function sanityCheck()
-  public 
-  onlyOwner { 
-    require (ready == false);
-    assert (totalSupply == circulatingSupply + foundationSupply); 
-    assert ((circulatingSupply.div(oldCirculatingSupply.mul(tenDecimalPlaces))) == scalingFactor);
-    assert (totalSupply.div(oldTotalSupply.mul(tenDecimalPlaces)) == scalingFactor); 
-    assert (totalSupply.div(oldTotalSupply.mul(tenDecimalPlaces)) == scalingFactor);
-    assert ((circulatingSupply.mul(10**11).div(totalSupply)) == circulatingPercentage);  
-    ready = true;
   }
 
   // ------------------------------------------------------------------------
@@ -117,14 +101,32 @@ contract TokenSwap is Owned{
   // ------------------------------------------------------------------------
   function swap(uint256 _amount) 
   public 
-  whenReady
+  noMint
   returns (bool){ 
-    require(tokensRedeemed.add(_amount) <= circulatingSupply);
     require(MyBitToken(oldTokenAddress).transferFrom(msg.sender, this, _amount));
     uint256 newTokenAmount = _amount.mul(scalingFactor).mul(tenDecimalPlaces);   // Add 10 more decimals to number of tokens
+    assert(tokensRedeemed.add(newTokenAmount) <= circulatingSupply);       // redeemed tokens should never exceed circulatingSupply
     tokensRedeemed = tokensRedeemed.add(newTokenAmount);
     require(newToken.transfer(msg.sender, newTokenAmount));
     LogTokenSwap(msg.sender, _amount, block.timestamp);
+    return true;
+  }
+
+  // ------------------------------------------------------------------------
+  // Users can trade old MyBit tokens for new MyBit tokens here 
+  // Must approve this contract to transfer in 
+  // ------------------------------------------------------------------------
+  function receiveApproval(address _from, uint _amount, address _token, bytes _data)
+  public 
+  noMint
+  returns (bool){ 
+    require(_token == oldTokenAddress);
+    require(MyBitToken(oldTokenAddress).transferFrom(_from, this, _amount));
+    uint256 newTokenAmount = _amount.mul(scalingFactor).mul(tenDecimalPlaces);   // Add 10 more decimals to number of tokens
+    assert(tokensRedeemed.add(newTokenAmount) <= circulatingSupply);    // redeemed tokens should never exceed circulatingSupply
+    tokensRedeemed = tokensRedeemed.add(newTokenAmount);
+    require(newToken.transfer(_from, newTokenAmount));
+    LogTokenSwap(_from, _amount, block.timestamp);
     return true;
   }
 
@@ -135,13 +137,18 @@ contract TokenSwap is Owned{
 
 
   // ------------------------------------------------------------------------
-  // modifiers 
+  // Modifiers 
   // ------------------------------------------------------------------------
-  modifier whenReady { 
-    require(ready);
+
+
+  // ------------------------------------------------------------------------
+  // This ensures that the owner of the previous token doesn't mint more 
+  // tokens during swap
+  // ------------------------------------------------------------------------
+  modifier noMint { 
+    require(oldCirculatingSupply == MyBitToken(oldTokenAddress).totalSupply());
     _;
   }
-
 
 }
 
