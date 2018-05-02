@@ -1,5 +1,5 @@
 // ---------------------------------------------------------------------------------------------------
-//  Requiresat least 9 accounts
+//  Requires at least 9 accounts
 // ---------------------------------------------------------------------------------------------------
 
 var BigInteger = require('./biginteger.js').BigInteger;
@@ -40,7 +40,6 @@ contract('TokenSwap', async (accounts) => {
   // Deploy old MyBitToken contract
   it("deploy old mybit token", async () => { 
     oldTokenInstance = await OldToken.new(oldTokenSupply, "MyBit Token", 8, "MyB");
-    assert.equal(await oldTokenInstance.owner(), ownerOne);
     assert.equal(await oldTokenInstance.totalSupply(), oldTokenSupply);
     assert.equal(await oldTokenInstance.balanceOf(ownerOne), oldTokenSupply);
   }); 
@@ -89,7 +88,6 @@ contract('TokenSwap', async (accounts) => {
     assert.equal(await tokenSwapInstance.scalingFactor(), scalingFactor);  // Scaling factor is moved up 10, due to lack of decimals in solidity
     assert.equal(await tokenSwapInstance.circulatingSupply(), circulatingSupply * tenDecimals);
     assert.equal(await tokenSwapInstance.foundationSupply(), foundationSupply * tenDecimals);
-    assert.equal(await tokenSwapInstance.owner(), web3.eth.accounts[0]);
 
     // Check Token variables are correct
     assert.equal(await tokenInstance.balanceOf(myBitFoundation), foundationSupply * tenDecimals, "Verify that foundation received tokens"); 

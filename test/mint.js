@@ -40,7 +40,6 @@ contract('TokenSwap', async (accounts) => {
   // Deploy old MyBitToken contract
   it("deploy old mybit token", async () => { 
     oldTokenInstance = await OldToken.new(oldTokenSupply, "MyBit Token", 8, "MyB");
-    assert.equal(await oldTokenInstance.owner(), ownerOne);
     assert.equal(await oldTokenInstance.totalSupply(), oldTokenSupply);
     assert.equal(await oldTokenInstance.balanceOf(ownerOne), oldTokenSupply);
   }); 
@@ -89,7 +88,6 @@ contract('TokenSwap', async (accounts) => {
     assert.equal(await tokenSwapInstance.scalingFactor(), scalingFactor);  // Scaling factor is moved up 10, due to lack of decimals in solidity
     assert.equal(await tokenSwapInstance.circulatingSupply(), circulatingSupply * tenDecimals);
     assert.equal(await tokenSwapInstance.foundationSupply(), foundationSupply * tenDecimals);
-    assert.equal(await tokenSwapInstance.owner(), web3.eth.accounts[0]);
 
     // Check Token variables are correct
     assert.equal(await tokenInstance.balanceOf(myBitFoundation), foundationSupply * tenDecimals, "Verify that foundation received tokens"); 
@@ -136,7 +134,7 @@ contract('TokenSwap', async (accounts) => {
      await oldTokenInstance.approve(tokenSwapInstance.address, oldUserBalance, {from: thisUser}); 
      try {await tokenSwapInstance.swap(oldUserBalance,{from:thisUser});}
      catch (error) {swapExecution = error}
-     assert.notEqual(swapExecution, null, 'modifier funderNotApproved');
+     assert.notEqual(swapExecution, null);
   });
 
 
@@ -185,7 +183,6 @@ contract('TokenSwap with wrong supply numbers for previous token', async (accoun
   // Deploy old MyBitToken contract
   it("deploy old mybit token", async () => { 
     oldTokenInstance = await OldToken.new(oldTokenSupply, "MyBit Token", 8, "MyB");
-    assert.equal(await oldTokenInstance.owner(), ownerOne);
     assert.equal(await oldTokenInstance.totalSupply(), oldTokenSupply);
     assert.equal(await oldTokenInstance.balanceOf(ownerOne), oldTokenSupply);
   }); 
@@ -264,7 +261,6 @@ contract('Recover lost tokens', async (accounts) => {
   // Deploy old MyBitToken contract
   it("deploy old mybit token", async () => { 
     oldTokenInstance = await OldToken.new(oldTokenSupply, "MyBit Token", 8, "MyB");
-    assert.equal(await oldTokenInstance.owner(), ownerOne);
     assert.equal(await oldTokenInstance.totalSupply(), oldTokenSupply);
     assert.equal(await oldTokenInstance.balanceOf(ownerOne), oldTokenSupply);
   }); 
@@ -315,7 +311,6 @@ contract('Recover lost tokens', async (accounts) => {
     assert.equal(await tokenSwapInstance.scalingFactor(), scalingFactor);  // Scaling factor is moved up 10, due to lack of decimals in solidity
     assert.equal(await tokenSwapInstance.circulatingSupply(), circulatingSupply * tenDecimals);
     assert.equal(await tokenSwapInstance.foundationSupply(), foundationSupply * tenDecimals);
-    assert.equal(await tokenSwapInstance.owner(), web3.eth.accounts[0]);
 
     // Check Token variables are correct
     assert.equal(await tokenInstance.balanceOf(myBitFoundation), foundationSupply * tenDecimals, "Verify that foundation received tokens"); 
@@ -324,7 +319,6 @@ contract('Recover lost tokens', async (accounts) => {
     assert.equal(await tokenInstance.totalSupply(), tokenSupply * tenDecimals);
     assert.equal(await tokenInstance.name(), name);
     assert.equal(await tokenInstance.symbol(), symbol);
-
   });
 
   it("Swap Old tokens for new tokens... account one", async () => { 
