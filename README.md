@@ -13,7 +13,7 @@ This is the sourcecode of the old MyBit token. It is a mintable ERC20 token. Use
 * totalSupply = 5 million
 * name = MyBit Token
 * decimals = 8
-* symbol = MYB
+* symbol = MyB
 
 
 ### ERC20
@@ -35,7 +35,10 @@ This is a helper contract to test ERC20 functions such as approveAndCall() and b
 
 ## Testing
 Tests can be found in test/tokenSwap.js
-To initiate tests run `truffle develop` and then `test testNameHere.js`
+To initiate tests run `truffle develop` and then `test tokenSwap.js`
+
+##### Requirements:
+ [BigNumber](https://github.com/MikeMcl/bignumber.js/) library.
 
 ### Tests:
 
