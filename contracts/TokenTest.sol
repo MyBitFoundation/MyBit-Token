@@ -1,4 +1,4 @@
-pragma solidity ^0.4.19;
+pragma solidity ^0.4.23;
 
 import './ERC20.sol';
 
@@ -25,7 +25,7 @@ contract TokenTest {
     public { 
       ERC20 tokenContract = ERC20(_erc20Contract);
       require(tokenContract.burnFrom(_from, _amount));
-      LogBurnFrom(_erc20Contract, _amount, _from); 
+      emit LogBurnFrom(_erc20Contract, _amount, _from); 
     }
 
     // ----------------------------------------------------------------------------
@@ -40,7 +40,7 @@ contract TokenTest {
       amount[ID] = _tokens; 
       from[ID] = _from; 
       burnTokens(_token, _from, _tokens);
-      LogApprovalReceived(_token, _tokens, _data, ID); 
+      emit LogApprovalReceived(_token, _tokens, _data, ID); 
     }
 
     // ----------------------------------------------------------------------------

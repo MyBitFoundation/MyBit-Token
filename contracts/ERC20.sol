@@ -1,4 +1,4 @@
-pragma solidity ^0.4.19;
+pragma solidity ^0.4.23;
 
 // Standard ERC20 contract with Burning capabilities.
 // https://theethereum.wiki/w/index.php/ERC20_Token_Standard
@@ -32,22 +32,22 @@ contract ERC20 is ERC20Interface{
     // ------------------------------------------------------------------------
     // Token Information
     // ------------------------------------------------------------------------
-    string public name;                   //Full Token name: MyBit
-    uint8 public decimals;                //How many decimals to show.
-    string public symbol;                 //An identifier:  MYB
+    string public name;                   // Full Token name
+    uint8 public decimals;                // How many decimals to show
+    string public symbol;                 // An identifier
 
 
     // ------------------------------------------------------------------------
     // Constructor
     // ------------------------------------------------------------------------
-    function ERC20(uint _initialAmount, string _tokenName, uint8 _decimalUnits, string _tokenSymbol) 
+    constructor(uint _initialAmount, string _tokenName, uint8 _decimalUnits, string _tokenSymbol) 
     public {
         balances[msg.sender] = _initialAmount;               // Give the creator all initial tokens
         supply = _initialAmount;                        // Update total supply
         name = _tokenName;                                   // Set the name for display purposes
         decimals = _decimalUnits;                            // Amount of decimals for display purposes
         symbol = _tokenSymbol;                               // Set the symbol for display purposes
-        Transfer(address(0), msg.sender, _initialAmount);    // Transfer event indicating token creation
+        emit Transfer(address(0), msg.sender, _initialAmount);    // Transfer event indicating token creation
     }
 
 
@@ -61,7 +61,7 @@ contract ERC20 is ERC20Interface{
         require(_to != address(0));         // Use burn() function instead
         balances[msg.sender] = balances[msg.sender].sub(_amount);
         balances[_to] = balances[_to].add(_amount);
-        Transfer(msg.sender, _to, _amount);
+        emit Transfer(msg.sender, _to, _amount);
         return true;
     }
 
@@ -76,7 +76,7 @@ contract ERC20 is ERC20Interface{
         balances[_from] = balances[_from].sub(_amount);
         allowed[_from][msg.sender] = allowed[_from][msg.sender].sub(_amount);
         balances[_to] = balances[_to].add(_amount);
-        Transfer(_from, _to, _amount);
+        emit Transfer(_from, _to, _amount);
         return true;
     }
 
@@ -88,7 +88,7 @@ contract ERC20 is ERC20Interface{
     public 
     returns (bool success) {
         allowed[msg.sender][_spender] = _amount;
-        Approval(msg.sender, _spender, _amount);
+        emit Approval(msg.sender, _spender, _amount);
         return true;
     }
 
@@ -101,7 +101,7 @@ contract ERC20 is ERC20Interface{
     public 
     returns (bool success) {
         allowed[msg.sender][_spender] = _amount;
-        Approval(msg.sender, _spender, _amount);
+        emit Approval(msg.sender, _spender, _amount);
         ApproveAndCallFallBack(_spender).receiveApproval(msg.sender, _amount, this, _data);
         return true;
     }
@@ -115,8 +115,8 @@ contract ERC20 is ERC20Interface{
     returns (bool success) {
         balances[msg.sender] = balances[msg.sender].sub(_amount);
         supply = supply.sub(_amount);
-        LogBurn(msg.sender, _amount);
-        Transfer(msg.sender, address(0), _amount);
+        emit LogBurn(msg.sender, _amount);
+        emit Transfer(msg.sender, address(0), _amount);
         return true;
     }
 
@@ -130,8 +130,8 @@ contract ERC20 is ERC20Interface{
         balances[_from] = balances[_from].sub(_amount);                         // Subtract from the targeted balance
         allowed[_from][msg.sender] = allowed[_from][msg.sender].sub(_amount);             // Subtract from the sender's allowance
         supply = supply.sub(_amount);                              // Update supply
-        LogBurn(_from, _amount);
-        Transfer(_from, address(0), _amount);
+        emit LogBurn(_from, _amount);
+        emit Transfer(_from, address(0), _amount);
         return true;
     }
 
