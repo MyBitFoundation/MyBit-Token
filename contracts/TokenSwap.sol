@@ -41,7 +41,6 @@ contract TokenSwap {
   // Token Transition Info
   // ------------------------------------------------------------------------  
   uint256 public scalingFactor = 36;          // 1 OldMyBit = 36 NewMyBit
-  uint256 public circulatingPercentage = 56241468802;   // The percentage of totalsupply previously released. floating point 10^11
   uint256 public tenDecimalPlaces = 10**10; 
 
 
@@ -49,7 +48,6 @@ contract TokenSwap {
   // Old Token Supply 
   // ------------------------------------------------------------------------  
   uint256 public oldCirculatingSupply;      // Old MyBit supply in circulation (8 decimals)
-  uint256 public oldTotalSupply = 500000000000000;          // Old MyBit supply not yet released (8 decimals)
 
 
   // ------------------------------------------------------------------------
