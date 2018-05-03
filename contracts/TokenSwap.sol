@@ -1,4 +1,4 @@
-pragma solidity ^0.4.23;
+pragma solidity 0.4.23;
 
 import './ERC20.sol';
 import './SafeMath.sol';
@@ -97,7 +97,7 @@ contract TokenSwap {
   // Alias for swap(). Called by old token contract when approval to transfer 
   // tokens has been given. 
   // ------------------------------------------------------------------------
-  function receiveApproval(address _from, uint _amount, address _token, bytes _data)
+  function receiveApproval(address _from, uint256 _amount, address _token, bytes _data)
   public 
   noMint
   returns (bool){ 
