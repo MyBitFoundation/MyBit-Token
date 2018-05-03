@@ -1,8 +1,7 @@
 // ---------------------------------------------------------------------------------------------------
-//  Requiresat least 9 accounts
+//  Requires at least 9 accounts
 // ---------------------------------------------------------------------------------------------------
 
-var BigInteger = require('./biginteger.js').BigInteger;
 var BigNumber = require('bignumber.js');
 
 // Initiate contract artifacts
@@ -143,10 +142,11 @@ contract('TokenSwap', async (accounts) => {
       let thisUser = web3.eth.accounts[i]; 
       let thisUserBalance = await tokenInstance.balanceOf(thisUser);
       let totalSupply = await tokenInstance.totalSupply();
+      let finalSupply = BigNumber(totalSupply).minus(thisUserBalance);
       if (thisUserBalance == 0) {  return;   }
       await tokenInstance.burn(thisUserBalance, {from: thisUser});
-      assert.equal(Number(await tokenInstance.balanceOf(thisUser)), 0);
-      assert.equal(Number(await tokenInstance.totalSupply()), BigInteger(totalSupply).subtract(thisUserBalance));
+      assert.equal(await tokenInstance.balanceOf(thisUser), 0);
+      assert.equal(finalSupply.eq(await tokenInstance.totalSupply()), true);
     }
     assert.equal(await tokenInstance.totalSupply(), 0); 
     assert.equal(await tokenSwapInstance.tokensRedeemed(), await tokenSwapInstance.circulatingSupply());

@@ -2,7 +2,6 @@
 //  Requires at least 9 accounts
 // ---------------------------------------------------------------------------------------------------
 
-var BigInteger = require('./biginteger.js').BigInteger;
 var BigNumber = require('bignumber.js');
 
 // Initiate contract artifacts
@@ -221,17 +220,15 @@ contract('TokenSwap', async (accounts) => {
   });
 
   it("transfer all tokens and receive them back", async () => { 
-    let ownerTokenBalance = BigInteger(await tokenInstance.balanceOf(ownerOne)); 
-    let myBitFoundationBalance = BigInteger(await tokenInstance.balanceOf(myBitFoundation));
-    let balanceTogether = ownerTokenBalance.add(myBitFoundationBalance);    // Scaled down due to large numbers
-    await tokenInstance.transfer(myBitFoundation, Number(ownerTokenBalance));   
-    let newFoundationBalance = BigInteger(await tokenInstance.balanceOf(myBitFoundation)); 
-    console.log(balanceTogether);
-    console.log(newFoundationBalance); 
-    assert.equal(Number(await tokenInstance.balanceOf(myBitFoundation)), myBitFoundationBalance.add(ownerTokenBalance));
-    await tokenInstance.transfer(ownerOne, Number(ownerTokenBalance), {from: myBitFoundation});  
-    assert.equal(myBitFoundationBalance - await tokenInstance.balanceOf(myBitFoundation), 0); 
-    assert.equal(await tokenInstance.balanceOf(ownerOne) - ownerTokenBalance, 0);
+    let ownerTokenBalance = await tokenInstance.balanceOf(ownerOne); 
+    let myBitFoundationBalance = await tokenInstance.balanceOf(myBitFoundation);
+    let balanceTogether = BigNumber(ownerTokenBalance).plus(myBitFoundationBalance);    // Scaled down due to large numbers
+    await tokenInstance.transfer(myBitFoundation, ownerTokenBalance);   
+    let newFoundationBalance = await tokenInstance.balanceOf(myBitFoundation); 
+    assert.equal(BigNumber(balanceTogether).eq(newFoundationBalance), true);
+    await tokenInstance.transfer(ownerOne, ownerTokenBalance, {from: myBitFoundation});  
+    assert.equal(BigNumber(myBitFoundationBalance).minus(await tokenInstance.balanceOf(myBitFoundation)), 0); 
+    assert.equal(BigNumber(ownerTokenBalance).eq(await tokenInstance.balanceOf(ownerOne)), true);
   });
 
 
@@ -299,13 +296,14 @@ contract('TokenSwap', async (accounts) => {
   it("Swap the rest of the old tokens", async () => { 
     for (let i = 3; i < web3.eth.accounts.length; i++) { 
       let thisUser = web3.eth.accounts[i]; 
-      assert.notEqual(Number(await oldTokenInstance.balanceOf(thisUser)), 0); 
-      let amountToSwap = BigInteger(await oldTokenInstance.balanceOf(thisUser));
-      let preBalance = BigInteger(await tokenInstance.balanceOf(thisUser)); 
-      await oldTokenInstance.approve(tokenSwapInstance.address, Number(amountToSwap), {from: thisUser}); 
-      await tokenSwapInstance.swap(Number(amountToSwap), {from: thisUser});
-      assert.equal(Number(await oldTokenInstance.balanceOf(thisUser)), 0); 
-      assert.equal(Number(await tokenInstance.balanceOf(thisUser)), Number(amountToSwap.multiply(scalingFactor).multiply(10**10)) + preBalance);
+      assert.notEqual(await oldTokenInstance.balanceOf(thisUser), 0); 
+      let amountToSwap = await oldTokenInstance.balanceOf(thisUser);
+      let preBalance = await tokenInstance.balanceOf(thisUser); 
+      let amountNewTokens = BigNumber(amountToSwap).times(scalingFactor).times(10**10);
+      await oldTokenInstance.approve(tokenSwapInstance.address, amountToSwap, {from: thisUser}); 
+      await tokenSwapInstance.swap(amountToSwap, {from: thisUser});
+      assert.equal(await oldTokenInstance.balanceOf(thisUser), 0); 
+      assert.equal(BigNumber(await tokenInstance.balanceOf(thisUser)).eq(BigNumber(amountNewTokens).plus(preBalance)), true);
     }
     // All tokens should now be swapped for new ones
     assert.equal(Number(await oldTokenInstance.totalSupply()), Number(await oldTokenInstance.balanceOf(tokenSwapInstance.address)));
@@ -315,12 +313,10 @@ contract('TokenSwap', async (accounts) => {
   it("Burn owner Tokens ", async () => { 
     let currentSupply = Number(await tokenInstance.totalSupply()); 
     let ownerBalance = await tokenInstance.balanceOf(ownerOne);
-    let newSupply = BigInteger(currentSupply).subtract(ownerBalance);  
-    console.log("ownerbalance is: ");
-    console.log(ownerBalance); 
+    let newSupply = BigNumber(currentSupply).minus(ownerBalance);  
     await tokenInstance.burn(ownerBalance); 
     assert.equal(Number(await tokenInstance.balanceOf(ownerOne)), 0, "User balance should be 0"); 
-    assert.equal(Number(newSupply), Number(await tokenInstance.totalSupply()), "Total supply did not decremented properly"); 
+    assert.equal(BigNumber(newSupply).eq(await tokenInstance.totalSupply()), true); 
   });
 
   it("Burn Tokens in many small transactions", async () => { 
@@ -422,7 +418,7 @@ contract('TokenSwap', async (accounts) => {
   it("Test approveandcall", async () => { 
     let thisUser = web3.eth.accounts[4];
     let userBalance = Number(await tokenInstance.balanceOf(thisUser));
-    let tokenSupply = BigInteger(await tokenInstance.totalSupply()); 
+    let tokenSupply = await tokenInstance.totalSupply(); 
     let txData = await testInstance.stringToData("Person Name");
     let approveID = await testInstance.getCallID(tokenInstance.address, userBalance, txData);
     await tokenInstance.approveAndCall(testInstance.address, userBalance, txData, {from: thisUser}); 
@@ -433,7 +429,7 @@ contract('TokenSwap', async (accounts) => {
     assert.equal(await testInstance.from(approveID), thisUser); 
     // Check tokens were burned
     assert.equal(await tokenInstance.balanceOf(thisUser), 0); 
-    assert.equal(tokenSupply.subtract(userBalance), Number(await tokenInstance.totalSupply())); 
+    assert.equal(BigNumber(await tokenInstance.totalSupply()).eq(BigNumber(tokenSupply).minus(userBalance)), true); 
   }); 
 
 
@@ -445,7 +441,7 @@ contract('TokenSwap', async (accounts) => {
       if (thisUserBalance == 0) {  return;   }
       await tokenInstance.burn(thisUserBalance, {from: thisUser});
       assert.equal(await tokenInstance.balanceOf(thisUser), 0);
-      assert.equal(Number(await tokenInstance.totalSupply()), BigInteger(totalSupply).subtract(thisUserBalance));
+      assert.equal(Number(await tokenInstance.totalSupply()), BigNumber(totalSupply).minus(thisUserBalance));
     }
     assert.equal(await tokenInstance.totalSupply(), 0); 
     assert.equal(await tokenSwapInstance.tokensRedeemed(), await tokenSwapInstance.circulatingSupply());
