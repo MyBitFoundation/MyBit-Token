@@ -354,9 +354,9 @@ contract('TokenSwap', async (accounts) => {
 
   it("Burn more tokens than user has", async () => { 
     var thisUser = web3.eth.accounts[3]; 
-    let totalSupply = Number(await tokenInstance.totalSupply());
-    let userBalance = Number(await tokenInstance.balanceOf(thisUser));
-    let overflow = userBalance * 1000; 
+    let totalSupply = await tokenInstance.totalSupply();
+    let userBalance = await tokenInstance.balanceOf(thisUser);
+    let overflow = BigNumber(userBalance).plus(1); 
     assert.notEqual(overflow, userBalance);
     try {
       await tokenInstance.burn(overflow, {from: thisUser});
@@ -365,10 +365,8 @@ contract('TokenSwap', async (accounts) => {
       return true;
     } 
       finally { 
-      console.log(totalSupply);
-      console.log(Number(await tokenInstance.totalSupply()));
-      assert.equal(userBalance, Number(await tokenInstance.balanceOf(thisUser))); 
-      assert.equal(totalSupply, Number(await tokenInstance.totalSupply()));
+      assert.equal(BigNumber(userBalance).eq(await tokenInstance.balanceOf(thisUser)), true); 
+      assert.equal(BigNumber(totalSupply).eq(await tokenInstance.totalSupply()), true);
     }
   });
 
