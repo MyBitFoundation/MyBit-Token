@@ -34,7 +34,7 @@ Standard [safemath](https://github.com/OpenZeppelin/zeppelin-solidity/blob/maste
 This is a helper contract to test ERC20 functions such as approveAndCall() and burnFrom()
 
 ## Testing
-Tests can be found in test/tokenSwap.js
+Tests can be found in test folder
 To initiate tests run `truffle develop` and then `test tokenSwap.js`
 
 ##### Requirements:

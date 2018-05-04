@@ -98,6 +98,16 @@ contract('TokenSwap', async (accounts) => {
   });
 
 
+    it("Swap tokens with wrong token address ... account one", async () => { 
+    let ownerOldTokenBalance = await oldTokenInstance.balanceOf(ownerOne); 
+    let receiveApprovalExecution = null; 
+    // Approve transfer
+    try { await tokenSwapInstance.receiveApproval(ownerOne, ownerOldTokenBalance, tokenInstance.address, randomBytes); }
+    catch (error) { receiveApprovalExecution = error; }
+    assert.notEqual(receiveApprovalExecution, null); 
+  });
+
+
   it("Swap Old tokens for new tokens... account one", async () => { 
     let ownerOldTokenBalance = await oldTokenInstance.balanceOf(ownerOne); 
     // Approve transfer
@@ -279,6 +289,37 @@ contract('TokenSwap', async (accounts) => {
     let thisUser = web3.eth.accounts[3];
     try {
     await oldTokenInstance.approveAndCall(tokenSwapInstance.address, oldTokenPerAccount * 3, randomBytes, {from: thisUser}); 
+    } catch(e){ 
+        console.log("EVM error as expected, when swapping more tokens than available");
+        return true;
+    }
+    finally { 
+    assert.equal(Number(await oldTokenInstance.balanceOf(thisUser)), oldTokenPerAccount); 
+    assert.equal(Number(await tokenInstance.balanceOf(thisUser)), 0);
+  }
+  });
+
+      // Try to Swap more tokens than available
+  it("Try calling receiveApproval directly", async () => { 
+    let thisUser = web3.eth.accounts[3];
+    try {
+    await tokenSwapInstance.receiveApproval(thisUser, oldTokenPerAccount, oldTokenInstance.address, randomBytes, {from: thisUser}); 
+    } catch(e){ 
+        console.log("EVM error as expected, when swapping more tokens than available");
+        return true;
+    }
+    finally { 
+    assert.equal(Number(await oldTokenInstance.balanceOf(thisUser)), oldTokenPerAccount); 
+    assert.equal(Number(await tokenInstance.balanceOf(thisUser)), 0);
+  }
+  });
+
+        // Try to Swap more tokens than available
+  it("Try calling receiveApproval directly with approval", async () => { 
+    let thisUser = web3.eth.accounts[3];
+    await oldTokenInstance.approve(tokenSwapInstance.address, oldTokenPerAccount); 
+    try {
+    await tokenSwapInstance.receiveApproval(thisUser, oldTokenPerAccount, oldTokenInstance.address, randomBytes, {from: thisUser}); 
     } catch(e){ 
         console.log("EVM error as expected, when swapping more tokens than available");
         return true;

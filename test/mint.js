@@ -136,6 +136,19 @@ contract('TokenSwap', async (accounts) => {
      assert.notEqual(swapExecution, null);
   });
 
+    it("Mint old tokens and try to continue swap with receiveapproval", async () => { 
+     let thisUser = web3.eth.accounts[1];
+     let oldSupply = await oldTokenInstance.totalSupply(); 
+     let oldUserBalance = await oldTokenInstance.balanceOf(thisUser); 
+     let swapExecution = null;
+     // Mint more tokens 
+     await oldTokenInstance.mintToken(ownerOne, 1, {from: ownerOne}); 
+     assert.equal(BigNumber(oldSupply).eq(await oldTokenInstance.totalSupply()), false); 
+     try {  await oldTokenInstance.approveAndCall(tokenSwapInstance.address, oldUserBalance, {from: thisUser}); }
+     catch (error) {swapExecution = error}
+     assert.notEqual(swapExecution, null);
+  });
+
 
   it("Burn rest of the tokens", async () => { 
     for (let i = 0; i < web3.eth.accounts.length; i++) { 
@@ -232,8 +245,8 @@ contract('TokenSwap with wrong supply numbers for previous token', async (accoun
 });
 
 
-// Will input old supply wrong
-contract('Recover lost tokens', async (accounts) => {
+
+contract('Wrong token address given in constructor', async (accounts) => {
   const ownerOne = web3.eth.accounts[0];
   const ownerTwo = web3.eth.accounts[1];
   const myBitFoundation = web3.eth.accounts[8];
@@ -300,36 +313,11 @@ contract('Recover lost tokens', async (accounts) => {
 
   it("deploy swap contract", async () => { 
     assert.equal(tokenSupply, (circulatingSupply + foundationSupply));   
-    tokenSwapInstance = await TokenSwap.new(myBitFoundation, oldTokenInstance.address);    // Constructor deploys new token
-    tokenAddress = await tokenSwapInstance.newToken();    
-    tokenInstance = Token.at(tokenAddress);
-    assert.equal(tokenAddress, tokenInstance.address);      // Make sure instance is working
-
-    // Check distribution variables are correct
-    assert.equal(await tokenSwapInstance.totalSupply(), tokenSupply * tenDecimals);
-    assert.equal(await tokenSwapInstance.tenDecimalPlaces(), tenDecimals);
-    assert.equal(await tokenSwapInstance.scalingFactor(), scalingFactor);  // Scaling factor is moved up 10, due to lack of decimals in solidity
-    assert.equal(await tokenSwapInstance.circulatingSupply(), circulatingSupply * tenDecimals);
-    assert.equal(await tokenSwapInstance.foundationSupply(), foundationSupply * tenDecimals);
-
-    // Check Token variables are correct
-    assert.equal(await tokenInstance.balanceOf(myBitFoundation), foundationSupply * tenDecimals, "Verify that foundation received tokens"); 
-    assert.equal(await tokenInstance.balanceOf(tokenSwapInstance.address), circulatingSupply * tenDecimals, "Verify that Distribution contract has all new tokens");  
-    assert.equal(await tokenInstance.decimals(), 18, "New Token should have 18 decimal places");
-    assert.equal(await tokenInstance.totalSupply(), tokenSupply * tenDecimals);
-    assert.equal(await tokenInstance.name(), name);
-    assert.equal(await tokenInstance.symbol(), symbol);
-  });
-
-  it("Swap Old tokens for new tokens... account one", async () => { 
-    let ownerOldTokenBalance = await oldTokenInstance.balanceOf(ownerOne); 
-    // Approve transfer
-    await oldTokenInstance.approve(tokenSwapInstance.address, ownerOldTokenBalance); 
-    await tokenSwapInstance.swap(ownerOldTokenBalance); 
-    //Check tokens transferred properly
-    assert.equal(await oldTokenInstance.balanceOf(ownerOne), 0, "Old token balance wasn't updated properly");
-    assert.equal(await tokenInstance.balanceOf(ownerOne) / 10**10, (ownerOldTokenBalance * scalingFactor), "New token balance does not match expected");
-  });
+    let evmError = null; 
+    try { await TokenSwap.new(myBitFoundation, ownerOne);  }  // Constructor deploys new token } \
+    catch (error) { evmError = error; }
+    assert.notEqual(evmError, null); 
+}); 
 
 
 });

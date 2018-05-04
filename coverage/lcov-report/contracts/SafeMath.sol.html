@@ -20,24 +20,24 @@
     </h1>
     <div class='clearfix'>
       <div class='fl pad1y space-right2'>
-        <span class="strong">81.82% </span>
+        <span class="strong">100% </span>
         <span class="quiet">Statements</span>
-        <span class='fraction'>9/11</span>
-      </div>
-      <div class='fl pad1y space-right2'>
-        <span class="strong">62.5% </span>
-        <span class="quiet">Branches</span>
-        <span class='fraction'>5/8</span>
+        <span class='fraction'>11/11</span>
       </div>
       <div class='fl pad1y space-right2'>
         <span class="strong">75% </span>
-        <span class="quiet">Functions</span>
-        <span class='fraction'>3/4</span>
+        <span class="quiet">Branches</span>
+        <span class='fraction'>6/8</span>
       </div>
       <div class='fl pad1y space-right2'>
-        <span class="strong">81.82% </span>
+        <span class="strong">100% </span>
+        <span class="quiet">Functions</span>
+        <span class='fraction'>4/4</span>
+      </div>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">100% </span>
         <span class="quiet">Lines</span>
-        <span class='fraction'>9/11</span>
+        <span class='fraction'>11/11</span>
       </div>
     </div>
   </div>
@@ -106,14 +106,12 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">170×</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">304×</span>
+<span class="cline-any cline-yes">2×</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">170×</span>
-<span class="cline-any cline-yes">170×</span>
-<span class="cline-any cline-yes">170×</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">302×</span>
+<span class="cline-any cline-yes">302×</span>
+<span class="cline-any cline-yes">302×</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -121,27 +119,29 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">4×</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">321×</span>
-<span class="cline-any cline-yes">316×</span>
+<span class="cline-any cline-yes">298×</span>
+<span class="cline-any cline-yes">290×</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">266×</span>
-<span class="cline-any cline-yes">266×</span>
-<span class="cline-any cline-yes">266×</span>
+<span class="cline-any cline-yes">462×</span>
+<span class="cline-any cline-yes">462×</span>
+<span class="cline-any cline-yes">462×</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">pragma solidity ^0.4.19;
+<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">pragma solidity 0.4.23;
 &nbsp;
 // https://github.com/OpenZeppelin/zeppelin-solidity/blob/master/contracts/math/SafeMath.sol
 // Note: Div only
@@ -155,8 +155,8 @@ library SafeMath {
   * @dev Multiplies two numbers, throws on overflow.
   */
   function mul(uint256 a, uint256 b) internal pure returns (uint256) {
-    <span class="missing-if-branch" title="if path not taken" >I</span>if (a == 0) {
-<span class="cstat-no" title="statement not covered" >      return 0;</span>
+    if (a == 0) {
+      return 0;
     }
     uint256 c = a * b;
     <span class="missing-if-branch" title="else path not taken" >E</span>assert(c / a == b);
@@ -166,11 +166,11 @@ library SafeMath {
   /**
   * @dev Integer division of two numbers, truncating the quotient.
   */
-<span class="fstat-no" title="function not covered" >  function div(uint256 a, uint256 b) internal pure returns (uint256) </span>{
+  function div(uint256 a, uint256 b) internal pure returns (uint256) {
     // assert(b &gt; 0); // Solidity automatically throws when dividing by 0
     // uint256 c = a / b;
     // assert(a == b * c + a % b); // There is no case in which this doesn't hold
-<span class="cstat-no" title="statement not covered" >    return a / b;</span>
+    return a / b;
   }
 &nbsp;
   /**
@@ -196,7 +196,7 @@ library SafeMath {
 </div><!-- /wrapper -->
 <div class='footer quiet pad2 space-top1 center small'>
   Code coverage
-  generated by <a href="http://istanbul-js.org/" target="_blank">istanbul</a> at Fri Apr 13 2018 17:47:48 GMT-0700 (PDT)
+  generated by <a href="http://istanbul-js.org/" target="_blank">istanbul</a> at Thu May 03 2018 17:49:27 GMT-0700 (PDT)
 </div>
 </div>
 <script src="../prettify.js"></script>
