@@ -11,6 +11,7 @@ This contract trades old MyBit tokens for new MyBit tokens. It replaces 1 old to
 This is the sourcecode of the old MyBit token. It is a mintable ERC20 token. Used for testing [MyBit token](https://etherscan.io/address/0x94298f1e0ab2dfad6eeffb1426846a3c29d98090#code)
 
 * totalSupply = 5 million
+* circulatingSupply = 2,812,073.44012426
 * name = MyBit Token
 * decimals = 8
 * symbol = MyB
@@ -20,6 +21,7 @@ This is the sourcecode of the old MyBit token. It is a mintable ERC20 token. Use
 Standard ERC20 contract with a deflationary supply. This contract inherits from ERC20Interface and contains no owners.
   
 * totalSupply = 180 million
+* circulatingSupply = 101,234,643.84447336
 * name = MyBit 
 * decimals = 18
 * symbol = MYB
