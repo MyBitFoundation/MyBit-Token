@@ -1,5 +1,5 @@
 # MyBit Token Swap
-This code is for a token migration, moving from an old ERC20 mintable token to a new ERC20 deflationairy supply token. The new token is fixed supply and has burning capabilities built into it. The new tokens cannot be bought, but instead must be claimed by transferring old tokens in to the TokenSwap contract. Once old tokens are transferred in the user will be transferred 36 new tokens for every 1 token claimed. The new tokens have 18 decimals and the old tokens have 8 decimals. The new token has no owners. 
+This code is for a token migration, moving from an old ERC20 mintable token to a new ERC20 deflationairy supply token. The new token has burning capabilities built into it, which will decrease the totalSupply as users burn tokens to access the network. The new tokens cannot be bought, but instead must be claimed by approving the TokenSwap contract with the wallet that is holding old MyBit tokens (DO NOT MANUALLY TRANSFER TOKENS TO THE CONTRACT). For every 1 old token swapped, the user will receive 36 new tokens. The new token has no owners and contains 10 more decimal places than the old token, giving it 18 decimal places total. 
 
 
 
