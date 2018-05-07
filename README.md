@@ -1,8 +1,11 @@
-# MyBitToken
+# MyBit Token Swap
 This code is for a token migration, moving from an old ERC20 mintable token to a new ERC20 deflationairy supply token. The new token is fixed supply and has burning capabilities built into it. The new tokens cannot be bought, but instead must be claimed by transferring old tokens in to the TokenSwap contract. Once old tokens are transferred in the user will be transferred 36 new tokens for every 1 token claimed. The new tokens have 18 decimals and the old tokens have 8 decimals. The new token has no owners. 
 
 
+
 ## Contracts
+
+#### IMPORTANT: Do not transfer tokens to any contract! The contracts will handle all token transfers once they receive approval. 
 
 ### TokenSwap
 This contract trades old MyBit tokens for new MyBit tokens. It replaces 1 old token for 36 new tokens. Upon creation the token swap contract is given the initial circulation, which is transferred to any account that can transfer old MyBit tokens using the swap() function in TokenSwap.sol. Alternatively the user can use approveAndCall() on the old MyBit contract with the TokenSwap contract address as the spender, which will trigger receiveApproval(), swapping the tokens in a single transaction.  The circulating supply of the old token is set in TokenSwap and must be 1/36 of the new circulating supply. 
@@ -18,7 +21,7 @@ This is the sourcecode of the old MyBit token. It is a mintable ERC20 token. Use
 
 
 ### ERC20
-Standard ERC20 contract with a deflationary supply. This contract inherits from ERC20Interface and contains no owners.
+Standard ERC20 contract with a deflationary supply. This contract inherits from ERC20Interface and contains no owners. Allows for burning of tokens and doesn't allow transfers to address 0x0 or itself. 
   
 * totalSupply = 180 million
 * circulatingSupply = 101,234,643.84447336
