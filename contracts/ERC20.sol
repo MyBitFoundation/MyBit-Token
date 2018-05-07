@@ -59,6 +59,7 @@ contract ERC20 is ERC20Interface{
     public 
     returns (bool success) {
         require(_to != address(0));         // Use burn() function instead
+        require(_to != address(this));
         balances[msg.sender] = balances[msg.sender].sub(_amount);
         balances[_to] = balances[_to].add(_amount);
         emit Transfer(msg.sender, _to, _amount);
@@ -73,6 +74,7 @@ contract ERC20 is ERC20Interface{
     public 
     returns (bool success) {
         require(_to != address(0)); 
+        require(_to != address(this)); 
         balances[_from] = balances[_from].sub(_amount);
         allowed[_from][msg.sender] = allowed[_from][msg.sender].sub(_amount);
         balances[_to] = balances[_to].add(_amount);

@@ -4,24 +4,6 @@ import './ERC20.sol';
 import './SafeMath.sol';
 
 // ------------------------------------------------------------------------
-// Interface for old MyBitToken 
-// ------------------------------------------------------------------------  
-interface MyBitToken {
-
-  function totalSupply() external constant returns (uint256);
-
-  function balanceOf(address _owner) external constant returns (uint256);
-
-  function transfer(address _to, uint256 _value) external;
-
-  function transferFrom(address _from, address _to, uint256 _value) external returns (bool);
-
-  function approve(address _spender, uint256 _value) external returns (bool);
-
-  function allowance(address _owner, address _spender) external constant returns (uint256);
-}
-
-// ------------------------------------------------------------------------
 // This contract is in-charge of receiving old MyBit tokens and returning
 // New MyBit tokens to users.
 // Note: Old tokens have 8 decimal places, while new tokens have 18 decimals
@@ -69,7 +51,7 @@ contract TokenSwap {
   constructor(address _myBitFoundation, address _oldTokenAddress)
   public { 
     oldTokenAddress = _oldTokenAddress; 
-    oldCirculatingSupply = ERC20(oldTokenAddress).totalSupply(); 
+    oldCirculatingSupply = ERC20Interface(oldTokenAddress).totalSupply(); 
     assert ((circulatingSupply.div(oldCirculatingSupply.mul(tenDecimalPlaces))) == scalingFactor);
     assert (oldCirculatingSupply.mul(scalingFactor.mul(tenDecimalPlaces)) == circulatingSupply); 
     newToken = new ERC20(totalSupply, "MyBit", 18, "MYB"); 
@@ -84,7 +66,7 @@ contract TokenSwap {
   public 
   noMint
   returns (bool){ 
-    require(MyBitToken(oldTokenAddress).transferFrom(msg.sender, this, _amount));
+    require(ERC20Interface(oldTokenAddress).transferFrom(msg.sender, this, _amount));
     uint256 newTokenAmount = _amount.mul(scalingFactor).mul(tenDecimalPlaces);   // Add 10 more decimals to number of tokens
     assert(tokensRedeemed.add(newTokenAmount) <= circulatingSupply);       // redeemed tokens should never exceed circulatingSupply
     tokensRedeemed = tokensRedeemed.add(newTokenAmount);
@@ -102,7 +84,7 @@ contract TokenSwap {
   noMint
   returns (bool){ 
     require(_token == oldTokenAddress);
-    require(MyBitToken(oldTokenAddress).transferFrom(_from, this, _amount));
+    require(ERC20Interface(oldTokenAddress).transferFrom(_from, this, _amount));
     uint256 newTokenAmount = _amount.mul(scalingFactor).mul(tenDecimalPlaces);   // Add 10 more decimals to number of tokens
     assert(tokensRedeemed.add(newTokenAmount) <= circulatingSupply);    // redeemed tokens should never exceed circulatingSupply
     tokensRedeemed = tokensRedeemed.add(newTokenAmount);
@@ -127,7 +109,7 @@ contract TokenSwap {
   // tokens during swap
   // ------------------------------------------------------------------------
   modifier noMint { 
-    require(oldCirculatingSupply == MyBitToken(oldTokenAddress).totalSupply());
+    require(oldCirculatingSupply == ERC20Interface(oldTokenAddress).totalSupply());
     _;
   }
 
