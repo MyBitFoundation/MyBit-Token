@@ -3,15 +3,15 @@ This code is for a token migration, moving from our old ERC20 mintable token to 
 
 ## Contracts
 
+#### ⚠️ IMPORTANT: Do not transfer tokens to any contract! The contracts will handle all token transfers once they receive approval. 
+
 ### Published on Main Net
 
-`0x7DC8A6E706dA7c4A77d3710F7B7e621ee0074dC3` TokenSwap
-`0x5d60d8d7eF6d37E16EBABc324de3bE57f135e0BC` NewToken
-`0x94298F1e0Ab2DFaD6eEFfB1426846a3c29D98090` OldToken
+#### `0x7DC8A6E706dA7c4A77d3710F7B7e621ee0074dC3` TokenSwap
+#### `0x5d60d8d7eF6d37E16EBABc324de3bE57f135e0BC` NewToken
+#### `0x94298F1e0Ab2DFaD6eEFfB1426846a3c29D98090` OldToken
 
 *Verified proof through Keybase on https://twitter.com/MyBit_DApp/status/993879392433602560*
-
-#### IMPORTANT: Do not transfer tokens to any contract! The contracts will handle all token transfers once they receive approval. 
 
 ### TokenSwap
 This contract trades old MyBit tokens for new MyBit tokens. It replaces 1 old token for 36 new tokens. Upon creation the token swap contract is given the initial circulation, which is transferred to any account that can transfer old MyBit tokens using the swap() function in TokenSwap.sol. Alternatively the user can use approveAndCall() on the old MyBit contract with the TokenSwap contract address as the spender, which will trigger receiveApproval(), swapping the tokens in a single transaction.  The circulating supply of the old token is set in TokenSwap and must be 1/36 of the new circulating supply. 
