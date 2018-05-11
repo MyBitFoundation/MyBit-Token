@@ -14,6 +14,8 @@ This code is for a token migration, moving from our old ERC20 mintable token to 
 
 # How to Swap MyBit token
 
+####For detailed instructions see this [post](https://medium.com/mybit-dapp/before-you-begin-take-a-deep-breath-and-relax-3820e9c8ca03)
+
 ## Overview
 To swap old MyBit tokens, one must call approveAndCall() on the old MyBit token contract, giving permission to the TokenSwap contract to transfer their old MyBit tokens. 
 
@@ -36,7 +38,7 @@ To swap old MyBit tokens, one must call approveAndCall() on the old MyBit token 
   5. Under _spender, put in the TokenSwap [address](https://github.com/MyBitFoundation/MyBitToken/blob/master/address/TokenSwap)
   6. Under _value, put in the amount of tokens you wish to Swap (last 8 digits are considered decimals)
   7. Leave amountToSend equal to 0 and let MEW automatically generate the Gas Limit, then make transaction
-  8. Check new token balance at [etherscan](https://etherscan.io/token/0x5d60d8d7ef6d37e16ebabc324de3be57f135e0bc#readContract) or click 'watch contract' again and add the new token [address](https://github.com/MyBitFoundation/MyBitToken/blob/master/address/NewToken) and [ABI](https://raw.githubusercontent.com/MyBitFoundation/MyBitToken/master/abis/NewToken.json)
+  8. Check new token balance at [etherscan](https://etherscan.io/token/0x5d60d8d7ef6d37e16ebabc324de3be57f135e0bc#readContract) or click 'watch contract' again and add the new token [address](https://github.com/MyBitFoundation/MyBitToken/blob/master/address/NewToken), 18 decimals and any token symbol as long is it is not the same as entered for the old MyBit token. 
 
 
 
