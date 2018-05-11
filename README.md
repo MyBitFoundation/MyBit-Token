@@ -14,7 +14,7 @@ This code is for a token migration, moving from our old ERC20 mintable token to 
 
 # How to Swap MyBit token
 
-####For detailed instructions see this [post](https://medium.com/mybit-dapp/before-you-begin-take-a-deep-breath-and-relax-3820e9c8ca03)
+#### For detailed instructions see this [post](https://medium.com/mybit-dapp/before-you-begin-take-a-deep-breath-and-relax-3820e9c8ca03)
 
 ## Overview
 To swap old MyBit tokens, one must call approveAndCall() on the old MyBit token contract, giving permission to the TokenSwap contract to transfer their old MyBit tokens. 
