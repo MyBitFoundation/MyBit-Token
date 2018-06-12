@@ -15,8 +15,7 @@ The analysis in this opinion is based on the information provided to our firm by
 The MyBit Ecosystem
 The Foundation was formed in 2017 to oversee the development of MyBit. MyBit is an ecosystem built on top of the Ethereum blockchain that enables decentralized crowd-funding of revenue generating assets (the “Assets”) and automates income distribution in real time.2 MyBit has two components. First, the MyBit Platform (the “Platform”), a web-based application interface wherein potential investors can purchase a share of IoT Assets that have been listed by their owner. And second, MYDAX, a decentralized peer-to-peer exchange wherein users can purchase and sell fractional shares of their Assets. MYDAX can operate independently from the MyBit
 1 Smith v. Lewis, 13 Cal. 3d 349, 358, 118 Cal. Rptr. 621, 627 (1975). See RESTATEMENT § 52, comment b; ABA Principles § I.D. 2 The Assets envisioned for the MyBit ecosystem include Internet-of-Things (“IoT”) devices such as photovoltaic systems, cryptocurrency ATMs, cryptocurrency miners, and vending machines. According to the BSA Foundation, there will be over 50 million connected IoT devices by 2025 generating over $11 trillion in yearly revenue, available at https://software.org/press- release/connecting-to-new-opportunities-through-connected-deviceshttps://software.org/press-release/connecting-to-new- opportunities-through-connected-devices
-1
-  The Crypto Lawyers, LLP
+
 Platform.
 The MyBit Platform is controlled, maintained, and updated through one central autonomous Ethereum smart contract known as the MyBit Hub. A transaction on the Platform consists of three events each handled by a separate smart contract: Asset creation, Asset funding, and Asset distribution. During the Asset creation event, operators can list Assets on the MyBit Platform and determine the funding period for a particular Asset.3 Operators may lock MyBit tokens (MYB) in escrow before starting a funding period for a new asset to increase trust from funders. The amount of escrowed MYB the operator can retrieve depends upon Asset returns.
 During the Asset funding event, users are able to send Ether (“ETH”) to a newly created smart contract address associated with the created Asset. The smart contract rewards participants with shares equal to the amount that they contributed. If the Asset successfully meets its funding target the smart contract distributes the ETH fundraised to the operator. The Foundation takes a 1% network transaction fee from the amount of ETH that was raised. If the funding period fails (i.e. the ETH fundraising goal is not met), the smart contract automatically refunds ETH to participants of the funding event. Similarly, operators retrieve their escrowed MYB.
@@ -29,8 +28,7 @@ According to a press-release from the Foundation, the newly swapped MYB are also
 3 To date, the Foundation manually selects the assets to be listed on the MyBit Platform. That process will eventually be decentralized wherein operators and users will interact directly with each other.
 4 MyBit Whitepaper at 3, available at https://files.mybit.io/files/MyBit_Whitepaper_v3.0.0.pdf
 5 Joost Toornend, A new Era for MyBit, (May 7, 2018), available at https://medium.com/mybit-dapp/as-we-are-on-the-brink-of- entering-mybits-new-era-we-have-a-very-important-announcement-to-make-a4cda1cd6956
-  The Crypto Lawyers, LLP
-2
+
 
 The MYB Token
  MYB acts as an access token to the MYB Platform by using a Proof-of-Burn protocol, which means that each user must burn MYB to access the Platform. Proof-of-Burn is intended to replace Proof-of-Stake and Proof- of-Work protocols while achieving distributed consensus. Proof-of-Burn’s significance is largely brought about by “burning tokens” in an unrecoverable manner such that it is easy to verify and extremely hard to undo. This protocol increases security by increasing the cost to attack the Platforms.
@@ -44,8 +42,7 @@ The United States Supreme Court in its 1946 decision in SEC v. W.J. Howey provid
 7 See SEC Release No. 81207, Report of Investigation Pursuant to Section 21(a) of the Securities Exchange Act of 1934: The DAO (July 25, 2017), available at https://www.sec.gov/litigation/investreport/34-81207.pdf
 8 SEC v. Howey Co., 328 U.S. 293 (1946).
 9 id. at 301.
-3
-  The Crypto Lawyers, LLP
+
 
 Our analysis is based on two key questions inherent in the flexible Howey test that demarcates a securities classification of a given asset: is the coin or token valuable primarily as an investment or as a useful item? And is there an issuer backing up that value or is the value the result of a network of unaffiliated participants in an industry and market? These questions illustrate the difference between coins or tokens that may provide positive returns for holders as a result of the efforts of others, versus assets that increase in value as a reflection of the positive qualities of the network and a natural demand the coins or tokens that operate within that network. With regard to coins or tokens that function as a utility on a network, these coins or tokens streamline commerce and provide a decentralized and democratized mechanism for equitable prices and efficient transactions between individuals.
 Further, as Jay Clayton, Chairman of the SEC, recently highlighted in his speech at Princeton University, "[w]hat we find in the regulatory world, the use of a [utility] token evolves over time. The use can evolve toward or away from a security."10 This statement is particularly relevant to the analysis of cryptocurrencies because while some may have satisfied elements of the Howey test at the time of their inception (assuming there was a token sale), these outcomes can realistically change over time. For example, an incomplete platform conducting a token sale can quickly become a completely decentralized platform that can only be joined via the secondary market or individual effort (e.g. mining). Given the regulatory uncertainty over the last few years, we find the most relevant time period for assessing whether a token or coin is a security is the current time. While we will analyze the historical development of the coin or token as well, our ultimate conclusions reflect the current status of the asset as it stands at the date of this opinion.
@@ -60,8 +57,7 @@ Under the horizontal approach, a common enterprise exists if there is a pooling 
 11 SEC v. SG Ltd., 265 F.3d 42, 46 (1st Cir. 2001) (quoting Int’l Bhd. of Teamsters v. Daniel, 439 U.S. 551, 559 (1979)).
 12 Uselton v. Comm. Lovelace Motor Freight, Inc., 940 F.2d 564, 574 (10th Cir. 1991) (In determining whether an investment contract exists, the investment of “money” need not take the form of cash.
 13 See supra note 7.
-  The Crypto Lawyers, LLP
-4
+
 
 investors so that all share in the profits and risks of the enterprise.14 Whether funds are pooled is the key question, and thus, in cases where there is no pooling of funds or sharing of profits, a common enterprise may not be deemed to exist.15
 Here, a pooling of assets took place because purchasers of MYB commingled their funds during the token sale by depositing ETH into a wallet address controlled by the Foundation. However, that pooling of assets was not for the purpose of purchasing an interest or a share for future profits within a common enterprise such as the Foundation itself, but rather for interested parties to purchase MYB tokens, which are required to use the MyBit ecosystem. As explained above, users must burn MYB tokens by sending them to a smart contract address in order to use the MyBit Platform and MYDAX. Moreover, the MYB token is indispensable to MyBit decentralized crowdfunding model because it acts as an incentive for Asset Managers to perform their duties diligently. Lastly, purchasers of MYB do no share in the risks of the offering entity, except in the universal manner that purchasers of a product assume some degree of risk that the selling entity will fall short with respect to maintenance and support of the product.
@@ -78,8 +74,7 @@ As noted in the discussion of narrow vertical commonality, the success of MYB to
 16 See SEC v. Eurobond Exchange Ltd., 13 F.3d 1334 (9th Cir. 1994) (imposition of profit limitations on investors through requiring promoter to receive excess return rate tied promoter’s fortunes to investors).
 17 We note, as mentioned above, that MyBit Platform and MYDAX had MPVs prior to MYB token sale.
 18 See SEC v. Koscot Interplanetary, Inc., 497 F.2d 473, 479 (5th Cir. 1974).
-5
-   The Crypto Lawyers, LLP
+
 
 this reason, it is likely that the common enterprise element is satisfied under the broad vertical approach for the MYB token.19
 Various commentators have argued that if a sale of coins or tokens is made before any code has been deployed on a blockchain, this is more likely to result in a common enterprise where the profits arise from the efforts of others. This is because the buyers are completely dependent on the actions of the developers, and the buyers cannot actually participate in the network until a later time. In contrast, when there is a functioning network, reliance on developers (aka promoters)’s actions are less likely. In short, the closer the sale is to launch of the network, the less likely there is to be a common enterprise.20 Here, the Foundation already had a functional minimum viable product and invited users to review the essential components of the MyBit and MYDAX Platforms prior to its token sale. This weigh in favor of MYB not be considered a “common enterprise” as compared with a platform that is entirely undeveloped at the time of the sale.
@@ -95,8 +90,7 @@ To the extent that token holders view their purchase as an investment with poten
 22 United Hous. Found. v Forman, 421 U.S. 837, 854-55 (1975).
 23 id. at 852-53.
 24 id. at 858 (“What distinguishes a security transaction . . . is an investment where one parts with his money in the hope of receiving profits from the efforts of others, and not where he purchases a commodity for personal consumption . . . .”). (Emphasis added.)
-6
- The Crypto Lawyers, LLP
+
 
 their “investment” is based on secondary market factors such as supply and demand based upon the attractiveness of the utility of the network to other users, rather than the sole efforts of the Foundation as a promoter. In our view, secondary market trading for MYB tokens, whether for speculation or otherwise, does not change the fundamental point that acquiring and holding MYB does not give rise to an expectation of profit solely from the efforts of others. Support for this view exists in Howey, where the Supreme Court bases its holding on the fact that investor sought to profit from the efforts of the contracting party and promoter of the underlying enterprise rather than the extent to which the arrangement gave rise to profit-driven secondary trading.25
 Second, assuming, arguendo, that the expectation of profit predominates the consumptive use, the “solely from the efforts of others” portion of the element asks “whether the efforts made by those other than the investor are the undeniably significant ones, those essential managerial efforts which affect the failure or success of the enterprise.” 26
@@ -110,8 +104,7 @@ Here, assuming that MYB purchasers were motivated by an expectation of profit, t
 28 Sinva v. Merrill Lynch, 253 F. Supp. 359, 367 (S.D.N.Y. 1966). 29 Interestingly,
   Commodity Futures Trading Commission (CFTC) Chairman J. Christopher Giancarlo recently said that Bitcoin bears
  several similarities to gold, although it has elements of many different asset classes.
-The Crypto Lawyers, LLP
-7
+
 
 Moreover, as demonstrated by several of the SEC enforcement actions with regards to token sales, (and as applicable here to MYB), the type of activities and behavior that the SEC considers unregistered securities offerings include: tokens backed by real estate where money is pooled for investment30, where tokens represent a share of an interest in a company that invests in diamonds to achieve high returns31, and where promoters represent to investors that the tokens would yield “a 1354 percent profit in less than 29 days.32 Here, the Foundation made no representations that the tokens would generate returns, that the tokens are “backed by” any tangible items, or that the funds would be used to invest in business ventures.
 We note, however, that because the Foundation uses a Proof-of-burn protocol to allow access to the Platform, this bears a prima facie resemblance to Munchee, who “burned” MUN coins. However, as described above, Proof-of-Burn represents a marginal number of tokens burned (destroyed) in order to access the platform for the purpose of making the platform too expensive to attack. In contrast, Munchee burned tokens specifically to increase their value.33 Thus, we believe this burning is distinguishable from Munchee in that the Proof-of-Burn protocol does not significantly affect the circulating supply of MYB, is not done with the intention of manipulating secondary market prices, and has a necessary security justification.
@@ -136,8 +129,7 @@ that “Bitcoin and other virtual
 33 See SEC Release No. 10445, Order Instituting Cease-And-Desist Proceedings Pursuant to Section 8A of the Securities Act of 1933, Making Findings, and Imposing a Cease-And-Desist Order (Dec. 11, 2017), available at https://www.sec.gov/litigation/admin/2017/33-10445.pdf.
 34 In the Matter of: Coinflip, Inc., d/b/a Derivabit, and Francisco Riordan. CFTC Docket No. 15-29, September 17, 2015. 35 CFTC v. Coindrop Markets, E.D.N.Y, Case 1:18-cv-00361, (January 18, 2018.)
 36 CFTC v. Coindrop Markets, E.D.N.Y, 18-CV-361 at 9, (March 6, 2018.)
-8
-The Crypto Lawyers, LLP
+
 
 follows:
 The CFTC’s jurisdiction is implicated when a virtual currency is used in a derivatives contract, or if there is fraud or manipulation involving a virtual currency traded in interstate commerce. − Beyond instances of fraud or manipulation, the CFTC generally does not oversee “spot” or cash market exchanges and transactions involving virtual currencies that do not utilize margin, leverage,
@@ -152,5 +144,4 @@ On the other hand, applying the narrow and broad vertical approaches, we conclud
 Third, we believe it is unlikely that holders of MYB are expecting a profit “solely based on the efforts of others” because, as represented by the Foundation, the sole and intended function of MYB token is to be consumed within the MyBit ecosystem.
 Based on our review of Howey, other relevant case law, SEC guidance, albeit limited, on the subject of cryptocurrencies, and based on information provided and representations made to us by the Foundation, we are of the opinion that it is likely that MYB does not satisfy the “expectation of profits solely based on the efforts of others” element of the Howey test. And if one element of the Howey Test is not satisfied, no security exists. Therefore, we conclude that MYB is not likely to be deemed a security. Further, given the CFTC’s relatively clear position regarding its jurisdiction over cryptocurrency exchanges in the spot markets, MYB trading should not be subject to commodity regulation.
   37 A CFTC Primer on Virtual Currencies, LabCFTC, October 17, 2017 (May 13, 2018.) available at https://www.cftc.gov/sites/default/files/idc/groups/public/documents/file/labcftc_primercurrencies100417.pdf 38 SEC Release No. 81207 at 10.
-9
-The Crypto Lawyers, LLP
+
